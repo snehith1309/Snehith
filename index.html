@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Inventory Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .modal-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #recordsView, #recordsView * {
+                visibility: visible;
+            }
+            #recordsView {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body id="appBody" class="h-full bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Main App Wrapper -->
+    <div id="app" class="flex-1 flex flex-col min-h-screen">
+        
+        <!-- ================= AUTHENTICATION VIEW ================= -->
+        <div id="authView" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950">
+            <div id="authCard" class="w-full max-w-md bg-slate-800/90 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl p-8 space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border border-indigo-500/30 p-0 shadow-inner">
+                        <img src="https://download.logo.wine/logo/Hero_MotoCorp/Hero_MotoCorp-Logo.wine.png" alt="Viswa Sai Hero Logo" class="w-full h-full object-contain">
+                    </div>
+                    <h1 id="authTitle" class="text-2xl font-bold tracking-tight text-white">Viswa Sai Hero Inventory Management</h1>
+                    <p class="text-xs text-slate-400">Secure Stock Manager</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-slate-300">Username</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-user"></i></span>
+                            <input type="text" id="loginUsername" required class="theme-input w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-100 transition" placeholder="Enter username (e.g., Admin@1309)">
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-slate-300">Password</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" id="loginPassword" required class="theme-input w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-indigo-500 text-slate-100 transition" placeholder="Enter password">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm shadow-lg shadow-indigo-600/30 transition transform active:scale-95">
+                        Sign In
+                    </button>
+                    <div class="flex items-center justify-between text-xs pt-2">
+                        <button type="button" onclick="showForgotModal()" class="text-indigo-400 hover:underline">Forgot Password?</button>
+                        <span class="text-slate-500">Authorized Access Only</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ================= HOME DASHBOARD VIEW ================= -->
+        <div id="homeView" class="hidden flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-white border border-slate-700 flex items-center justify-center p-0 shadow">
+                        <img src="https://download.logo.wine/logo/Hero_MotoCorp/Hero_MotoCorp-Logo.wine.png" alt="Viswa Sai Hero Logo" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                        <h2 class="theme-text-main font-bold text-base text-white">Inventory Command Center</h2>
+                        <p class="text-xs text-slate-400" id="sessionDeviceBadge">Connected Device: MASTER</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="openSettingsModal()" class="theme-btn-sec p-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white transition shadow" title="Settings & Device Management">
+                        <i class="fa-solid fa-gear text-lg"></i>
+                    </button>
+                    <button onclick="handleLogout()" class="px-4 py-2 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-400 hover:bg-rose-600 hover:text-white text-xs font-semibold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Banners Content -->
+            <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-8 my-auto">
+                <div class="text-center space-y-2 mb-8">
+                    <h1 class="theme-text-main text-3xl font-extrabold text-white tracking-tight">Stock Management Hub</h1>
+                    <p class="text-sm text-slate-400">Select an operational module below to manage fleet inventories, sales, and analytics.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Banner 1: Available Stock -->
+                    <div onclick="switchModule('available')" class="theme-card group relative bg-gradient-to-b from-slate-800 to-slate-800/60 border border-slate-700 hover:border-indigo-500 rounded-2xl p-6 shadow-xl cursor-pointer transition transform hover:-translate-y-1 hover:shadow-2xl">
+                        <div class="absolute top-4 right-4 w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-boxes-stacked text-xl"></i>
+                        </div>
+                        <h3 class="theme-text-main text-lg font-bold text-white mb-1">View Available Stock</h3>
+                        <p class="text-xs text-slate-400 mb-6">Manage current inventory, add new vehicle entries, filter specifications, and mark vehicles as sold.</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-indigo-400 group-hover:text-indigo-300">
+                            <span id="availableStockCountBadge">0 Items Available</span>
+                            <i class="fa-solid fa-arrow-right transition transform group-hover:translate-x-1"></i>
+                        </div>
+                    </div>
+
+                    <!-- Banner 2: Sold Stock -->
+                    <div onclick="switchModule('sold')" class="theme-card group relative bg-gradient-to-b from-slate-800 to-slate-800/60 border border-slate-700 hover:border-emerald-500 rounded-2xl p-6 shadow-xl cursor-pointer transition transform hover:-translate-y-1 hover:shadow-2xl">
+                        <div class="absolute top-4 right-4 w-12 h-12 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+                        </div>
+                        <h3 class="theme-text-main text-lg font-bold text-white mb-1">View Sold Stock</h3>
+                        <p class="text-xs text-slate-400 mb-6">Review records of all sold vehicles, buyer details, payment modes, and financial breakdowns.</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-400 group-hover:text-emerald-300">
+                            <span id="soldStockCountBadge">0 Items Sold</span>
+                            <i class="fa-solid fa-arrow-right transition transform group-hover:translate-x-1"></i>
+                        </div>
+                    </div>
+
+                    <!-- Banner 3: View Records -->
+                    <div onclick="switchModule('records')" class="theme-card group relative bg-gradient-to-b from-slate-800 to-slate-800/60 border border-slate-700 hover:border-amber-500 rounded-2xl p-6 shadow-xl cursor-pointer transition transform hover:-translate-y-1 hover:shadow-2xl">
+                        <div class="absolute top-4 right-4 w-12 h-12 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
+                            <i class="fa-solid fa-chart-pie text-xl"></i>
+                        </div>
+                        <h3 class="theme-text-main text-lg font-bold text-white mb-1">View Records</h3>
+                        <p class="text-xs text-slate-400 mb-6">Generate advanced incoming, outgoing, and holding reports by Daily, Weekly, Monthly, Yearly, or Calendar range.</p>
+                        <div class="flex items-center justify-between text-xs font-semibold text-amber-400 group-hover:text-amber-300">
+                            <span>Analyze Reports</span>
+                            <i class="fa-solid fa-arrow-right transition transform group-hover:translate-x-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="theme-footer bg-slate-900 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 space-y-1">
+                <p><span class="font-semibold text-slate-300">Address:</span> Viswa Sai Agencies, Shiridi Sai Nagar, Gudur, 524101</p>
+                <p><span class="font-semibold text-slate-300">Contact Details:</span> +91 9515471545 | kurapatisnehith@gmail.com</p>
+                <p class="text-indigo-400 font-medium">Developed and maintained by Snehith Kumar Kurapati</p>
+            </footer>
+        </div>
+
+        <!-- ================= AVAILABLE STOCK VIEW ================= -->
+        <div id="availableStockView" class="hidden flex-1 flex flex-col">
+            <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="returnHome()" class="theme-btn-sec p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="theme-text-main font-bold text-lg text-white">Available Stock Inventory</h2>
+                </div>
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="deleteSelectedAvailable()" id="deleteSelectedBtn" class="hidden px-3 py-2 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-semibold transition items-center space-x-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Delete Selected</span>
+                    </button>
+                    <button onclick="openAddEntryModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add New Entry</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+                <!-- Filter Bar -->
+                <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl p-4 shadow-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 items-end">
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Filter Model</label>
+                        <select id="filterModel" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select Model --</option>
+                            <option value="Passion Plus">Passion Plus</option>
+                            <option value="Splendor Plus">Splendor Plus</option>
+                            <option value="Splendor 2.O">Splendor 2.O</option>
+                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
+                            <option value="HF Delux">HF Delux</option>
+                            <option value="HF pro">HF pro</option>
+                            <option value="Xpulse">Xpulse</option>
+                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
+                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
+                            <option value="Pleasure Plus">Pleasure Plus</option>
+                            <option value="Pleasure Xtec">Pleasure Xtec</option>
+                            <option value="Destini 125 VX">Destini 125 VX</option>
+                            <option value="Destini 125 ZX">Destini 125 ZX</option>
+                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Filter Colour</label>
+                        <select id="filterColour" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select Colour --</option>
+                            <option value="AOB">AOB</option>
+                            <option value="BCB">BCB</option>
+                            <option value="BHG">BHG</option>
+                            <option value="BIG">BIG</option>
+                            <option value="BKB">BKB</option>
+                            <option value="BLG">BLG</option>
+                            <option value="BLK">BLK</option>
+                            <option value="BMG">BMG</option>
+                            <option value="BRB">BRB</option>
+                            <option value="BRD">BRD</option>
+                            <option value="BPR">BPR</option>
+                            <option value="BSR">BSR</option>
+                            <option value="BTB">BTB</option>
+                            <option value="BTL">BTL</option>
+                            <option value="BKR">BKR</option>
+                            <option value="BGY">BGY</option>
+                            <option value="FWT">FWT</option>
+                            <option value="GMM">GMM</option>
+                            <option value="ILG">ILG</option>
+                            <option value="MAG">MAG</option>
+                            <option value="MBC">MBC</option>
+                            <option value="MBK">MBK</option>
+                            <option value="MGV">MGV</option>
+                            <option value="MGM">MGM</option>
+                            <option value="MNB">MNB</option>
+                            <option value="BMY">BMY</option>
+                            <option value="MVG">MVG</option>
+                            <option value="NRD">NRD</option>
+                            <option value="PBE">PBE</option>
+                            <option value="PEB">PEB</option>
+                            <option value="PKB">PKB</option>
+                            <option value="RPB">RPB</option>
+                            <option value="SBK">SBK</option>
+                            <option value="SRD">SRD</option>
+                            <option value="TBM">TBM</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Engine Number</label>
+                        <input type="text" id="filterEngine" oninput="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Engine No...">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Frame Number</label>
+                        <input type="text" id="filterFrame" oninput="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Frame No...">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Filter Entry Date</label>
+                        <input type="date" id="filterDate" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-1">
+                        <button onclick="resetAvailableFilters()" class="theme-btn-sec w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-xl transition">Reset Filters</button>
+                    </div>
+                </div>
+
+                <!-- Stock List Table / Cards Grid -->
+                <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="p-4 w-10">
+                                        <input type="checkbox" id="selectAllAvailable" onchange="toggleSelectAllAvailable(this)" class="w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500 cursor-pointer">
+                                    </th>
+                                    <th class="p-4">Model</th>
+                                    <th class="p-4">Engine No.</th>
+                                    <th class="p-4">Frame No.</th>
+                                    <th class="p-4">Colour</th>
+                                    <th class="p-4">Entry Date</th>
+                                    <th class="p-4">Remarks</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="availableStockTableBody" class="divide-y divide-slate-700/60">
+                                <!-- Dynamic rows inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="availableStockEmpty" class="hidden p-12 text-center text-slate-500 space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl"></i>
+                        <p class="text-sm">No available stock records found.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SOLD STOCK VIEW ================= -->
+        <div id="soldStockView" class="hidden flex-1 flex flex-col">
+            <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="returnHome()" class="theme-btn-sec p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="theme-text-main font-bold text-lg text-white">Sold Stock Records</h2>
+                </div>
+            </header>
+
+            <div class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+                <!-- Sold Stock Filter Bar -->
+                <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl p-4 shadow-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Model</label>
+                        <select id="filterSoldModel" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select Model --</option>
+                            <option value="Passion Plus">Passion Plus</option>
+                            <option value="Splendor Plus">Splendor Plus</option>
+                            <option value="Splendor 2.O">Splendor 2.O</option>
+                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
+                            <option value="HF Delux">HF Delux</option>
+                            <option value="HF pro">HF pro</option>
+                            <option value="Xpulse">Xpulse</option>
+                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
+                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
+                            <option value="Pleasure Plus">Pleasure Plus</option>
+                            <option value="Pleasure Xtec">Pleasure Xtec</option>
+                            <option value="Destini 125 VX">Destini 125 VX</option>
+                            <option value="Destini 125 ZX">Destini 125 ZX</option>
+                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Colour</label>
+                        <select id="filterSoldColour" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select Colour --</option>
+                            <option value="AOB">AOB</option>
+                            <option value="BCB">BCB</option>
+                            <option value="BHG">BHG</option>
+                            <option value="BIG">BIG</option>
+                            <option value="BKB">BKB</option>
+                            <option value="BLG">BLG</option>
+                            <option value="BLK">BLK</option>
+                            <option value="BMG">BMG</option>
+                            <option value="BRB">BRB</option>
+                            <option value="BRD">BRD</option>
+                            <option value="BPR">BPR</option>
+                            <option value="BSR">BSR</option>
+                            <option value="BTB">BTB</option>
+                            <option value="BTL">BTL</option>
+                            <option value="BKR">BKR</option>
+                            <option value="BGY">BGY</option>
+                            <option value="FWT">FWT</option>
+                            <option value="GMM">GMM</option>
+                            <option value="ILG">ILG</option>
+                            <option value="MAG">MAG</option>
+                            <option value="MBC">MBC</option>
+                            <option value="MBK">MBK</option>
+                            <option value="MGV">MGV</option>
+                            <option value="MGM">MGM</option>
+                            <option value="MNB">MNB</option>
+                            <option value="BMY">BMY</option>
+                            <option value="MVG">MVG</option>
+                            <option value="NRD">NRD</option>
+                            <option value="PBE">PBE</option>
+                            <option value="PEB">PEB</option>
+                            <option value="PKB">PKB</option>
+                            <option value="RPB">RPB</option>
+                            <option value="SBK">SBK</option>
+                            <option value="SRD">SRD</option>
+                            <option value="TBM">TBM</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Engine Number</label>
+                        <input type="text" id="filterSoldEngine" oninput="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Engine No...">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Frame Number</label>
+                        <input type="text" id="filterSoldFrame" oninput="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Frame No...">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Sold To</label>
+                        <select id="filterSoldTo" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select Buyer --</option>
+                            <option value="Customer">Customer</option>
+                            <option value="Partner">Partner</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Payment Mode</label>
+                        <select id="filterSoldPayment" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select Mode --</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Finance">Finance</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Timeframe</label>
+                        <select id="filterSoldTimeframe" onchange="onSoldTimeframeChange()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="all">All Time</option>
+                            <option value="daily">Daily (Today)</option>
+                            <option value="weekly">Weekly (Sun-Sat)</option>
+                            <option value="monthly">Monthly (Calendar)</option>
+                            <option value="yearly">Yearly (1990-2099)</option>
+                            <option value="manual">Custom Dates</option>
+                        </select>
+                    </div>
+
+                    <div id="soldMonthBox" class="hidden space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Month</label>
+                        <select id="filterSoldMonth" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+
+                    <div id="soldYearBox" class="hidden space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Year</label>
+                        <select id="filterSoldYear" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <!-- Populated 1990 to 2099 -->
+                        </select>
+                    </div>
+
+                    <div id="soldManualBox" class="hidden space-y-1 sm:col-span-2">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">From Date – To Date</label>
+                        <div class="flex items-center space-x-1">
+                            <input type="date" id="filterSoldFromDate" onchange="renderSoldStock()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="From Date">
+                            <span class="text-slate-400 text-xs">-</span>
+                            <input type="date" id="filterSoldToDate" onchange="renderSoldStock()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="To Date">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <button onclick="resetSoldFilters()" class="theme-btn-sec w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-xl transition">Reset Filters</button>
+                    </div>
+                </div>
+
+                <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="p-4">Model</th>
+                                    <th class="p-4">Engine / Frame No.</th>
+                                    <th class="p-4">Sold To</th>
+                                    <th class="p-4">Payment Mode</th>
+                                    <th class="p-4">Sold Date</th>
+                                    <th class="p-4">Finance Provider / Ref ID</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="soldStockTableBody" class="divide-y divide-slate-700/60">
+                                <!-- Dynamic rows inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="soldStockEmpty" class="hidden p-12 text-center text-slate-500 space-y-2">
+                        <i class="fa-solid fa-circle-check text-3xl"></i>
+                        <p class="text-sm">No sold stock records found.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= RECORDS & REPORTING VIEW ================= -->
+        <div id="recordsView" class="hidden flex-1 flex flex-col">
+            <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="returnHome()" class="theme-btn-sec p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition no-print">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h2 class="theme-text-main font-bold text-lg text-white">Inventory Records & Reports</h2>
+                </div>
+                <!-- Export Buttons for Excel & PDF -->
+                <div class="flex items-center space-x-2 no-print">
+                    <button onclick="exportReportToExcel()" class="px-3 py-2 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Export Filtered Report to Excel (CSV)">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Export Excel</span>
+                    </button>
+                    <button onclick="exportReportToPDF()" class="px-3 py-2 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Print / Export Report to PDF">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Export PDF</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+                <!-- Report Controls & Reset Filter Option -->
+                <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl p-4 shadow-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end no-print">
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Timeframe Filter</label>
+                        <select id="reportTimeframe" onchange="onReportTimeframeChange()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="all">All Time</option>
+                            <option value="daily">Daily (Today)</option>
+                            <option value="weekly">Weekly (Sun-Sat)</option>
+                            <option value="monthly">Monthly (Calendar)</option>
+                            <option value="yearly">Yearly (1990-2099)</option>
+                            <option value="manual">Custom Dates</option>
+                        </select>
+                    </div>
+
+                    <!-- NEW STATUS / FLOW FILTER -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Status / Flow Filter</label>
+                        <select id="filterReportStatus" onchange="generateReport()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- All (Sold & Available) --</option>
+                            <option value="Sold">1. Sold</option>
+                            <option value="Available">2. Available</option>
+                        </select>
+                    </div>
+
+                    <div id="reportMonthBox" class="hidden space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Month</label>
+                        <select id="filterReportMonth" onchange="generateReport()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+
+                    <div id="reportYearBox" class="hidden space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Year</label>
+                        <select id="filterReportYear" onchange="generateReport()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <!-- Populated 1990 to 2099 -->
+                        </select>
+                    </div>
+
+                    <div id="reportManualBox" class="hidden space-y-1 sm:col-span-2">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">From Date – To Date</label>
+                        <div class="flex items-center space-x-1">
+                            <input type="date" id="filterReportFromDate" onchange="generateReport()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="From Date">
+                            <span class="text-slate-400 text-xs">-</span>
+                            <input type="date" id="filterReportToDate" onchange="generateReport()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="To Date">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <button onclick="resetReportFilters()" class="theme-btn-sec w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-xl transition">Reset Filters</button>
+                    </div>
+                </div>
+
+                <!-- Report Summary Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                        <p class="text-xs font-medium text-slate-400">Incoming Stock (In Period)</p>
+                        <h3 class="text-2xl font-bold text-indigo-400 mt-1" id="reportIncomingCount">0</h3>
+                    </div>
+                    <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                        <p class="text-xs font-medium text-slate-400">Outgoing Stock (Sold in Period)</p>
+                        <h3 class="text-2xl font-bold text-emerald-400 mt-1" id="reportOutgoingCount">0</h3>
+                    </div>
+                    <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                        <p class="text-xs font-medium text-slate-400">Available Stock</p>
+                        <h3 class="text-2xl font-bold text-amber-400 mt-1" id="reportHoldingCount">0</h3>
+                    </div>
+                </div>
+
+                <!-- Neat Report Table -->
+                <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+                    <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="theme-text-main font-semibold text-sm text-white" id="reportTableTitle">Detailed Report Log</h3>
+                        <span class="text-xs text-slate-400" id="reportTimestamp">Current Period</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="p-4">Status / Flow</th>
+                                    <th class="p-4">Model</th>
+                                    <th class="p-4">Engine Number</th>
+                                    <th class="p-4">Frame Number</th>
+                                    <th class="p-4">Colour</th>
+                                    <th class="p-4">Entry Date</th>
+                                    <th class="p-4">Sold To</th>
+                                    <th class="p-4">Mode of Payment</th>
+                                    <th class="p-4">Reference ID</th>
+                                    <th class="p-4">Date of Sale</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody" class="divide-y divide-slate-700/60">
+                                <!-- Dynamic report rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Add New Entry Modal -->
+    <div id="addEntryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-xl p-6 space-y-6 modal-transition max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                <h3 class="theme-text-main text-lg font-bold text-white"><i class="fa-solid fa-circle-plus text-indigo-400 mr-2"></i>Add New Vehicle Entry</h3>
+                <button onclick="closeAddEntryModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="addEntryForm" onsubmit="submitNewEntry(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Model</label>
+                        <select id="entryModel" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="" disabled selected>-- Select Model --</option>
+                            <option value="Passion Plus">Passion Plus</option>
+                            <option value="Splendor Plus">Splendor Plus</option>
+                            <option value="Splendor 2.O">Splendor 2.O</option>
+                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
+                            <option value="HF Delux">HF Delux</option>
+                            <option value="HF pro">HF pro</option>
+                            <option value="Xpulse">Xpulse</option>
+                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
+                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
+                            <option value="Pleasure Plus">Pleasure Plus</option>
+                            <option value="Pleasure Xtec">Pleasure Xtec</option>
+                            <option value="Destini 125 VX">Destini 125 VX</option>
+                            <option value="Destini 125 ZX">Destini 125 ZX</option>
+                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Engine Number</label>
+                        <input type="text" id="entryEngine" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Engine No.">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Frame Number</label>
+                        <input type="text" id="entryFrame" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Frame No.">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Date of Entry</label>
+                        <input type="date" id="entryDate" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Colour</label>
+                        <select id="entryColour" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="" disabled selected>-- Select Colour --</option>
+                            <option value="AOB">AOB</option>
+                            <option value="BCB">BCB</option>
+                            <option value="BHG">BHG</option>
+                            <option value="BIG">BIG</option>
+                            <option value="BKB">BKB</option>
+                            <option value="BLG">BLG</option>
+                            <option value="BLK">BLK</option>
+                            <option value="BMG">BMG</option>
+                            <option value="BRB">BRB</option>
+                            <option value="BRD">BRD</option>
+                            <option value="BPR">BPR</option>
+                            <option value="BSR">BSR</option>
+                            <option value="BTB">BTB</option>
+                            <option value="BTL">BTL</option>
+                            <option value="BKR">BKR</option>
+                            <option value="BGY">BGY</option>
+                            <option value="FWT">FWT</option>
+                            <option value="GMM">GMM</option>
+                            <option value="ILG">ILG</option>
+                            <option value="MAG">MAG</option>
+                            <option value="MBC">MBC</option>
+                            <option value="MBK">MBK</option>
+                            <option value="MGV">MGV</option>
+                            <option value="MGM">MGM</option>
+                            <option value="MNB">MNB</option>
+                            <option value="BMY">BMY</option>
+                            <option value="MVG">MVG</option>
+                            <option value="NRD">NRD</option>
+                            <option value="PBE">PBE</option>
+                            <option value="PEB">PEB</option>
+                            <option value="PKB">PKB</option>
+                            <option value="RPB">RPB</option>
+                            <option value="SBK">SBK</option>
+                            <option value="SRD">SRD</option>
+                            <option value="TBM">TBM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="font-medium text-slate-300">Other Remarks (Optional)</label>
+                    <textarea id="entryRemarks" rows="2" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Any additional notes..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-700">
+                    <button type="button" onclick="closeAddEntryModal()" class="theme-btn-sec px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition">Cancel</button>
+                    <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold shadow-lg shadow-indigo-600/30 transition">Submit Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit/Mark Sold Modal -->
+    <div id="editEntryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-xl p-6 space-y-6 modal-transition max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                <h3 class="theme-text-main text-lg font-bold text-white"><i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i>Vehicle Details & Sale Processing</h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="editEntryForm" onsubmit="submitSoldEntry(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="editEntryId">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Model</label>
+                        <select id="editModel" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="" disabled selected>-- Select Model --</option>
+                            <option value="Passion Plus">Passion Plus</option>
+                            <option value="Splendor Plus">Splendor Plus</option>
+                            <option value="Splendor 2.O">Splendor 2.O</option>
+                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
+                            <option value="HF Delux">HF Delux</option>
+                            <option value="HF pro">HF pro</option>
+                            <option value="Xpulse">Xpulse</option>
+                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
+                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
+                            <option value="Pleasure Plus">Pleasure Plus</option>
+                            <option value="Pleasure Xtec">Pleasure Xtec</option>
+                            <option value="Destini 125 VX">Destini 125 VX</option>
+                            <option value="Destini 125 ZX">Destini 125 ZX</option>
+                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Engine Number</label>
+                        <input type="text" id="editEngine" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Frame Number</label>
+                        <input type="text" id="editFrame" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Date of Entry</label>
+                        <input type="date" id="editDate" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Colour</label>
+                        <select id="editColour" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="" disabled selected>-- Select Colour --</option>
+                            <option value="AOB">AOB</option>
+                            <option value="BCB">BCB</option>
+                            <option value="BHG">BHG</option>
+                            <option value="BIG">BIG</option>
+                            <option value="BKB">BKB</option>
+                            <option value="BLG">BLG</option>
+                            <option value="BLK">BLK</option>
+                            <option value="BMG">BMG</option>
+                            <option value="BRB">BRB</option>
+                            <option value="BRD">BRD</option>
+                            <option value="BPR">BPR</option>
+                            <option value="BSR">BSR</option>
+                            <option value="BTB">BTB</option>
+                            <option value="BTL">BTL</option>
+                            <option value="BKR">BKR</option>
+                            <option value="BGY">BGY</option>
+                            <option value="FWT">FWT</option>
+                            <option value="GMM">GMM</option>
+                            <option value="ILG">ILG</option>
+                            <option value="MAG">MAG</option>
+                            <option value="MBC">MBC</option>
+                            <option value="MBK">MBK</option>
+                            <option value="MGV">MGV</option>
+                            <option value="MGM">MGM</option>
+                            <option value="MNB">MNB</option>
+                            <option value="BMY">BMY</option>
+                            <option value="MVG">MVG</option>
+                            <option value="NRD">NRD</option>
+                            <option value="PBE">PBE</option>
+                            <option value="PEB">PEB</option>
+                            <option value="PKB">PKB</option>
+                            <option value="RPB">RPB</option>
+                            <option value="SBK">SBK</option>
+                            <option value="SRD">SRD</option>
+                            <option value="TBM">TBM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="font-medium text-slate-300">Other Remarks</label>
+                    <textarea id="editRemarks" rows="2" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+
+                <!-- Sale Section Checkbox & Fields -->
+                <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="markAsSoldCheck" onchange="toggleSaleFields()" class="w-4 h-4 text-indigo-600 rounded bg-slate-800 border-slate-600 focus:ring-indigo-500">
+                        <label for="markAsSoldCheck" class="theme-text-main font-bold text-white text-sm">Mark this vehicle as SOLD</label>
+                    </div>
+
+                    <div id="saleFieldsContainer" class="hidden space-y-3 pt-2 border-t border-slate-700">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="font-medium text-slate-300">Sold To</label>
+                                <select id="soldTo" onchange="toggleAdPointField()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                                    <option value="" disabled selected>-- Select Buyer --</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Partner">Partner</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <!-- AD Point / Region Field (Appears only when 'Partner' is selected) -->
+                            <div id="adPointContainer" class="hidden space-y-1">
+                                <label class="font-medium text-slate-300">AD Point / Region</label>
+                                <input type="text" id="adPointRegion" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Enter region...">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="font-medium text-slate-300">Mode of Payment</label>
+                                <select id="paymentMode" onchange="toggleFinanceProvider()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                                    <option value="" disabled selected>-- Select Payment Mode --</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="Finance">Finance</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="font-medium text-slate-300">Date of Sale</label>
+                                <input type="date" id="soldDateInput" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <div id="financeProviderBox" class="hidden space-y-1">
+                            <label class="font-medium text-slate-300" id="financeProviderLabel">Finance Provider</label>
+                            <input type="text" id="financeProvider" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Enter details...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-700">
+                    <button type="button" onclick="closeEditModal()" class="theme-btn-sec px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition">Cancel</button>
+                    <button type="submit" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-emerald-600/30 transition">Save & Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sold Item Details Info Modal -->
+    <div id="soldDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-6 modal-transition">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                <h3 class="theme-text-main text-lg font-bold text-white"><i class="fa-solid fa-receipt text-emerald-400 mr-2"></i>Sold Vehicle Record Details</h3>
+                <button onclick="closeSoldDetailModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="soldDetailContent" class="space-y-3 text-xs">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="flex justify-end pt-4 border-t border-slate-700">
+                <button onclick="closeSoldDetailModal()" class="theme-btn-sec px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password / Security Questions Modal -->
+    <div id="forgotModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-6 modal-transition">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                <h3 class="theme-text-main text-lg font-bold text-white"><i class="fa-solid fa-shield-halved text-indigo-400 mr-2"></i>Password Recovery</h3>
+                <button onclick="closeForgotModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="forgotStep1" class="space-y-4 text-xs">
+                <p class="text-slate-300">Answer your preset security questions to verify your identity.</p>
+                <div class="space-y-3">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300" id="sqLabel1">1. In which hospital snehith had born?</label>
+                        <input type="text" id="sqAns1" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Your answer...">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300" id="sqLabel2">2. In which school Vikranth completed his 10th?</label>
+                        <input type="text" id="sqAns2" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Your answer...">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300" id="sqLabel3">3. When is your wedding anniversary?</label>
+                        <input type="text" id="sqAns3" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Your answer...">
+                    </div>
+                </div>
+                <div id="forgotError" class="hidden text-rose-400 font-semibold text-center">Incorrect answers! Please retry.</div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-700">
+                    <button type="button" onclick="closeForgotModal()" class="theme-btn-sec px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition">Cancel</button>
+                    <button type="button" onclick="verifySecurityAnswers()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition">Verify Answers</button>
+                </div>
+            </div>
+
+            <div id="forgotStep2" class="hidden space-y-4 text-xs">
+                <p class="text-emerald-400 font-semibold">Verification successful! Set your new password.</p>
+                <div class="space-y-3">
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">New Password</label>
+                        <input type="password" id="newPass" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="New password">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-medium text-slate-300">Confirm New Password</label>
+                        <input type="password" id="confirmNewPass" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Confirm password">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-700">
+                    <button type="button" onclick="updateNewPassword()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold transition">Update Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings & Add Device Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-6 modal-transition max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                <h3 class="theme-text-main text-lg font-bold text-white"><i class="fa-solid fa-gear text-indigo-400 mr-2"></i>Settings & Device Access Manager</h3>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4 text-xs">
+                
+                <!-- Theme Switcher Section -->
+                <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="theme-text-main font-bold text-white text-sm"><i class="fa-solid fa-circle-half-stroke text-indigo-400 mr-2"></i>Appearance Mode</h4>
+                        <p class="text-slate-400">Switch between dark and light themes.</p>
+                    </div>
+                    <button onclick="toggleThemeMode()" id="themeToggleButton" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition flex items-center space-x-2">
+                        <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
+                        <span id="themeToggleLabel">Dark Mode</span>
+                    </button>
+                </div>
+
+                <!-- Update Current User Credentials (Username & Password) -->
+                <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-3">
+                    <h4 class="theme-text-main font-bold text-white text-sm"><i class="fa-solid fa-user-pen text-indigo-400 mr-2"></i>Update Username & Password</h4>
+                    <p class="text-slate-400">Change your login username (unique identifier) and password.</p>
+                    <div class="space-y-3 pt-2">
+                        <div class="space-y-1">
+                            <label class="font-medium text-slate-300">New Username (Unique Handle)</label>
+                            <input type="text" id="settingsNewUsername" class="theme-input theme-sub-input w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="New username...">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-medium text-slate-300">New Password</label>
+                            <input type="password" id="settingsNewPassword" class="theme-input theme-sub-input w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="New password...">
+                        </div>
+                        <button onclick="updateCurrentCredentials()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition">Update Credentials</button>
+                    </div>
+                </div>
+
+                <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-3">
+                    <h4 class="theme-text-main font-bold text-white text-sm"><i class="fa-solid fa-laptop text-indigo-400 mr-2"></i>Add Device / Share Access (Max 10 Devices)</h4>
+                    <p class="text-slate-400">Configure new login credentials for sharing access with secondary devices (up to 10 total).</p>
+                    <div class="space-y-3 pt-2">
+                        <div class="space-y-1">
+                            <label class="font-medium text-slate-300">New Device Username</label>
+                            <input type="text" id="newDeviceUser" class="theme-input theme-sub-input w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Username...">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-medium text-slate-300">New Device Password</label>
+                            <input type="password" id="newDevicePass" class="theme-input theme-sub-input w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Password...">
+                        </div>
+                        <button onclick="addNewDevice()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition">Add / Save Device Credentials</button>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="theme-text-main font-semibold text-slate-300">Authorized Devices List (<span id="deviceCountLabel">1</span>/10)</h4>
+                    <div id="deviceListContainer" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- Dynamically populated devices -->
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end pt-4 border-t border-slate-700">
+                <button onclick="closeSettingsModal()" class="theme-btn-sec px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Notification Box (Replaces alert) -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center space-y-4">
+            <div id="customModalIcon" class="w-12 h-12 rounded-full bg-indigo-600/20 text-indigo-400 mx-auto flex items-center justify-center text-xl">
+                <i class="fa-solid fa-info"></i>
+            </div>
+            <h3 id="customModalTitle" class="font-bold text-white text-base">Notification</h3>
+            <p id="customModalMessage" class="text-xs text-slate-300">Message content here.</p>
+            <button onclick="closeCustomModal()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition">OK</button>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            currentUser: null,
+            currentDevice: 'Master Device',
+            theme: localStorage.getItem('inv_theme') || 'dark',
+            users: JSON.parse(localStorage.getItem('inv_users')) || [
+                { username: 'Admin@1309', password: '123456789', deviceName: 'Master Device' }
+            ],
+            securityQuestions: JSON.parse(localStorage.getItem('inv_sq')) || {
+                q1: 'In which hospital snehith had born?', a1: 'cr reddy',
+                q2: 'In which school Vikranth completed his 10th?', a2: 'minerva',
+                q3: 'When is your wedding anniversary?', a3: 'dec12'
+            },
+            inventory: JSON.parse(localStorage.getItem('inv_items')) || []
+        };
+
+        // Initialize Theme on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme(state.theme);
+        });
+
+        function toggleThemeMode() {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('inv_theme', state.theme);
+            applyTheme(state.theme);
+        }
+
+        function applyTheme(theme) {
+            const body = document.getElementById('appBody');
+            const toggleLabel = document.getElementById('themeToggleLabel');
+            const toggleIcon = document.getElementById('themeToggleIcon');
+
+            if (theme === 'light') {
+                body.className = 'h-full bg-slate-100 text-slate-900 flex flex-col justify-between selection:bg-indigo-500 selection:text-white';
+                toggleLabel.innerText = 'Light Mode';
+                toggleIcon.className = 'fa-solid fa-sun';
+
+                // Update cards, headers, inputs for light mode styling classes
+                document.querySelectorAll('.theme-card').forEach(el => {
+                    if (el.classList.contains('bg-gradient-to-b')) {
+                        el.className = el.className.replace(/bg-gradient-to-b from-slate-800 to-slate-800\/60/g, 'bg-gradient-to-b from-white to-slate-50 shadow-md').replace(/border-slate-700/g, 'border-slate-200');
+                    } else {
+                        el.className = el.className.replace(/bg-slate-800(\/\d+)?/g, 'bg-white shadow-md').replace(/border-slate-700/g, 'border-slate-200');
+                    }
+                });
+                document.querySelectorAll('.theme-header').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-800(\/\d+)?/g, 'bg-white/80').replace(/border-slate-700/g, 'border-slate-200');
+                });
+                document.querySelectorAll('.theme-footer').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-900/g, 'bg-slate-200').replace(/border-slate-800/g, 'border-slate-300');
+                });
+                document.querySelectorAll('.theme-input').forEach(el => {
+                    el.style.colorScheme = 'light';
+                    el.className = el.className.replace(/bg-slate-900(\/\d+)?/g, 'bg-slate-50').replace(/bg-slate-950/g, 'bg-white').replace(/border-slate-700/g, 'border-slate-300').replace(/text-slate-100/g, 'text-slate-900');
+                });
+                document.querySelectorAll('.theme-table-header').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-900(\/\d+)?/g, 'bg-slate-100').replace(/border-slate-700/g, 'border-slate-200');
+                });
+                document.querySelectorAll('.theme-text-main').forEach(el => {
+                    el.className = el.className.replace(/text-white/g, 'text-slate-900');
+                });
+                document.querySelectorAll('.theme-card p.text-slate-400').forEach(el => {
+                    el.classList.remove('text-slate-400');
+                    el.classList.add('text-slate-600');
+                });
+                document.querySelectorAll('.theme-text-sub').forEach(el => {
+                    el.className = el.className.replace(/text-slate-400/g, 'text-slate-700');
+                });
+                document.querySelectorAll('.theme-subcard').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-900(\/\d+)?/g, 'bg-slate-50').replace(/bg-slate-950/g, 'bg-slate-100').replace(/border-slate-700/g, 'border-slate-200');
+                });
+                document.querySelectorAll('.theme-btn-sec').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-700/g, 'bg-slate-200 hover:bg-slate-300 text-slate-800');
+                });
+            } else {
+                body.className = 'h-full bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white';
+                toggleLabel.innerText = 'Dark Mode';
+                toggleIcon.className = 'fa-solid fa-moon';
+
+                document.querySelectorAll('.theme-card').forEach(el => {
+                    if (el.classList.contains('bg-gradient-to-b')) {
+                        el.className = el.className.replace(/bg-gradient-to-b from-white to-slate-50 shadow-md/g, 'bg-gradient-to-b from-slate-800 to-slate-800/60').replace(/border-slate-200/g, 'border-slate-700');
+                    } else {
+                        el.className = el.className.replace(/bg-white shadow-md/g, 'bg-slate-800/90').replace(/border-slate-200/g, 'border-slate-700');
+                    }
+                });
+                document.querySelectorAll('.theme-header').forEach(el => {
+                    el.className = el.className.replace(/bg-white\/80/g, 'bg-slate-800/80').replace(/border-slate-200/g, 'border-slate-700');
+                });
+                document.querySelectorAll('.theme-footer').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-200/g, 'bg-slate-900').replace(/border-slate-300/g, 'border-slate-800');
+                });
+                document.querySelectorAll('.theme-input').forEach(el => {
+                    el.style.colorScheme = 'dark';
+                    if (el.classList.contains('theme-sub-input')) {
+                        el.className = el.className.replace(/bg-slate-50/g, 'bg-slate-950').replace(/bg-white/g, 'bg-slate-950').replace(/border-slate-300/g, 'border-slate-700').replace(/text-slate-900/g, 'text-slate-100');
+                    } else {
+                        el.className = el.className.replace(/bg-slate-50/g, 'bg-slate-900/80').replace(/bg-white/g, 'bg-slate-900/80').replace(/border-slate-300/g, 'border-slate-700').replace(/text-slate-900/g, 'text-slate-100');
+                    }
+                });
+                document.querySelectorAll('.theme-table-header').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-100/g, 'bg-slate-900/60').replace(/border-slate-200/g, 'border-slate-700');
+                });
+                document.querySelectorAll('.theme-text-main').forEach(el => {
+                    el.className = el.className.replace(/text-slate-900/g, 'text-white');
+                });
+                document.querySelectorAll('.theme-card p.text-slate-600').forEach(el => {
+                    el.classList.remove('text-slate-600');
+                    el.classList.add('text-slate-400');
+                });
+                document.querySelectorAll('.theme-text-sub').forEach(el => {
+                    el.className = el.className.replace(/text-slate-700/g, 'text-slate-400');
+                });
+                document.querySelectorAll('.theme-subcard').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-50/g, 'bg-slate-900/80').replace(/bg-slate-100/g, 'bg-slate-950').replace(/border-slate-200/g, 'border-slate-700');
+                });
+                document.querySelectorAll('.theme-btn-sec').forEach(el => {
+                    el.className = el.className.replace(/bg-slate-200 hover:bg-slate-300 text-slate-800/g, 'bg-slate-700 hover:bg-slate-600 text-slate-300');
+                });
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('inv_users', JSON.stringify(state.users));
+            localStorage.setItem('inv_sq', JSON.stringify(state.securityQuestions));
+            localStorage.setItem('inv_items', JSON.stringify(state.inventory));
+        }
+
+        function showNotification(title, message, type = 'info') {
+            document.getElementById('customModalTitle').innerText = title;
+            document.getElementById('customModalMessage').innerText = message;
+            const iconBox = document.getElementById('customModalIcon');
+            if (type === 'success') {
+                iconBox.className = 'w-12 h-12 rounded-full bg-emerald-600/20 text-emerald-400 mx-auto flex items-center justify-center text-xl';
+                iconBox.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else if (type === 'error') {
+                iconBox.className = 'w-12 h-12 rounded-full bg-rose-600/20 text-rose-400 mx-auto flex items-center justify-center text-xl';
+                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            } else {
+                iconBox.className = 'w-12 h-12 rounded-full bg-indigo-600/20 text-indigo-400 mx-auto flex items-center justify-center text-xl';
+                iconBox.innerHTML = '<i class="fa-solid fa-info"></i>';
+            }
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+
+            const found = state.users.find(x => x.username === u && x.password === p);
+            if (found) {
+                state.currentUser = found.username;
+                state.currentDevice = found.deviceName || 'Device';
+                document.getElementById('sessionDeviceBadge').innerText = `Connected Device: ${state.currentDevice}`;
+                document.getElementById('authView').classList.add('hidden');
+                document.getElementById('homeView').classList.remove('hidden');
+                updateDashboardBadges();
+            } else {
+                showNotification('Login Failed', 'Invalid username or password. Please retry.', 'error');
+            }
+        }
+
+        function handleLogout() {
+            state.currentUser = null;
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('availableStockView').classList.add('hidden');
+            document.getElementById('soldStockView').classList.add('hidden');
+            document.getElementById('recordsView').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('authView').classList.remove('hidden');
+        }
+
+        function switchModule(moduleName) {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('availableStockView').classList.add('hidden');
+            document.getElementById('soldStockView').classList.add('hidden');
+            document.getElementById('recordsView').classList.add('hidden');
+
+            if (moduleName === 'available') {
+                document.getElementById('availableStockView').classList.remove('hidden');
+                renderAvailableStock();
+            } else if (moduleName === 'sold') {
+                document.getElementById('soldStockView').classList.remove('hidden');
+                renderSoldStock();
+            } else if (moduleName === 'records') {
+                document.getElementById('recordsView').classList.remove('hidden');
+                onReportTimeframeChange();
+            }
+            applyTheme(state.theme);
+        }
+
+        function returnHome() {
+            document.getElementById('availableStockView').classList.add('hidden');
+            document.getElementById('soldStockView').classList.add('hidden');
+            document.getElementById('recordsView').classList.add('hidden');
+            document.getElementById('homeView').classList.remove('hidden');
+            updateDashboardBadges();
+            applyTheme(state.theme);
+        }
+
+        function updateDashboardBadges() {
+            const availCount = state.inventory.filter(i => !i.isSold).length;
+            const soldCount = state.inventory.filter(i => i.isSold).length;
+            document.getElementById('availableStockCountBadge').innerText = `${availCount} Items Available`;
+            document.getElementById('soldStockCountBadge').innerText = `${soldCount} Items Sold`;
+        }
+
+        function formatDateForComparison(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateString;
+        }
+
+        function formatDateForInput(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateString;
+        }
+
+        function parseDateDMY(dateString) {
+            if (!dateString) return null;
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return new Date(dateString);
+        }
+
+        function renderAvailableStock() {
+            const tbody = document.getElementById('availableStockTableBody');
+            const emptyBox = document.getElementById('availableStockEmpty');
+            tbody.innerHTML = '';
+
+            const selectAllCb = document.getElementById('selectAllAvailable');
+            if (selectAllCb) {
+                selectAllCb.checked = false;
+                selectAllCb.indeterminate = false;
+            }
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.classList.remove('inline-flex');
+                deleteSelectedBtn.classList.add('hidden');
+            }
+
+            const fName = document.getElementById('filterName') ? document.getElementById('filterName').value.toLowerCase() : '';
+            const fModel = document.getElementById('filterModel').value;
+            const fColour = document.getElementById('filterColour').value;
+            const fEng = document.getElementById('filterEngine').value.toLowerCase();
+            const fFrm = document.getElementById('filterFrame').value.toLowerCase();
+            const rawFilterDate = document.getElementById('filterDate').value;
+            const fDate = formatDateForComparison(rawFilterDate);
+
+            const availableItems = state.inventory.filter(item => {
+                if (item.isSold) return false;
+                if (fName && !item.name.toLowerCase().includes(fName)) return false;
+                if (fModel && item.model !== fModel) return false;
+                if (fColour && item.colour !== fColour) return false;
+                if (fEng && !item.engine.toLowerCase().includes(fEng)) return false;
+                if (fFrm && !item.frame.toLowerCase().includes(fFrm)) return false;
+                if (fDate && item.date !== fDate) return false;
+                return true;
+            });
+
+            if (availableItems.length === 0) {
+                emptyBox.classList.remove('hidden');
+            } else {
+                emptyBox.classList.add('hidden');
+                availableItems.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-700/40 cursor-pointer transition';
+                    tr.onclick = () => openEditModal(item.id);
+                    
+                    const namePart = item.name ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(item.name)}</span>` : '';
+                    
+                    tr.innerHTML = `
+                        <td class="p-4 w-10" onclick="event.stopPropagation()">
+                            <input type="checkbox" value="${item.id}" onchange="updateSelectedAvailableCount()" class="available-checkbox w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500 cursor-pointer">
+                        </td>
+                        <td class="p-4 font-semibold theme-text-main text-indigo-600 dark:text-indigo-400">
+                            ${namePart}
+                            <span class="text-xs font-bold text-indigo-500">${escapeHtml(item.model || 'N/A')}</span>
+                        </td>
+                        <td class="p-4 theme-text-sub text-slate-400 font-mono">${escapeHtml(item.engine)}</td>
+                        <td class="p-4 theme-text-sub text-slate-400 font-mono">${escapeHtml(item.frame)}</td>
+                        <td class="p-4 theme-text-sub text-slate-400 capitalize">${escapeHtml(item.colour)}</td>
+                        <td class="p-4 theme-text-sub text-slate-400">${escapeHtml(item.date)}</td>
+                        <td class="p-4 theme-text-sub text-slate-400 italic">${escapeHtml(item.remarks || 'None')}</td>
+                        <td class="p-4 text-right space-x-1">
+                            <button onclick="event.stopPropagation(); openEditModal('${item.id}')" class="px-2.5 py-1 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="Edit Entry">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Edit</span>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteEntry('${item.id}')" class="px-2.5 py-1 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="Delete Entry">
+                                <i class="fa-solid fa-trash"></i>
+                                <span>Delete</span>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            applyTheme(state.theme);
+        }
+
+        function toggleSelectAllAvailable(master) {
+            const checkboxes = document.querySelectorAll('.available-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+            updateSelectedAvailableCount();
+        }
+
+        function updateSelectedAvailableCount() {
+            const checkboxes = document.querySelectorAll('.available-checkbox:checked');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            if (checkboxes.length > 0) {
+                deleteBtn.classList.remove('hidden');
+                deleteBtn.classList.add('inline-flex');
+            } else {
+                deleteBtn.classList.remove('inline-flex');
+                deleteBtn.classList.add('hidden');
+            }
+
+            const allCheckboxes = document.querySelectorAll('.available-checkbox');
+            const masterCb = document.getElementById('selectAllAvailable');
+            if (allCheckboxes.length > 0 && checkboxes.length === allCheckboxes.length) {
+                masterCb.checked = true;
+                masterCb.indeterminate = false;
+            } else if (checkboxes.length > 0) {
+                masterCb.checked = false;
+                masterCb.indeterminate = true;
+            } else {
+                masterCb.checked = false;
+                masterCb.indeterminate = false;
+            }
+        }
+
+        function deleteSelectedAvailable() {
+            const checkboxes = document.querySelectorAll('.available-checkbox:checked');
+            if (checkboxes.length === 0) return;
+
+            if (confirm(`Are you sure you want to delete ${checkboxes.length} selected vehicle entry/entries?`)) {
+                const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
+                state.inventory = state.inventory.filter(i => !idsToDelete.includes(i.id));
+                saveData();
+                renderAvailableStock();
+                showNotification('Deleted', 'Selected vehicle entries removed successfully.', 'success');
+            }
+        }
+
+        function deleteEntry(id) {
+            if (confirm('Are you sure you want to delete this vehicle entry?')) {
+                state.inventory = state.inventory.filter(i => i.id !== id);
+                saveData();
+                renderAvailableStock();
+                showNotification('Deleted', 'Vehicle entry removed successfully.', 'success');
+            }
+        }
+
+        function resetAvailableFilters() {
+            if(document.getElementById('filterName')) document.getElementById('filterName').value = '';
+            document.getElementById('filterModel').value = '';
+            document.getElementById('filterColour').value = '';
+            document.getElementById('filterEngine').value = '';
+            document.getElementById('filterFrame').value = '';
+            document.getElementById('filterDate').value = '';
+            renderAvailableStock();
+        }
+
+        function openAddEntryModal() {
+            document.getElementById('addEntryForm').reset();
+            const now = new Date();
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+            document.getElementById('entryDate').value = `${y}-${m}-${d}`;
+            document.getElementById('addEntryModal').classList.remove('hidden');
+            applyTheme(state.theme);
+        }
+
+        function closeAddEntryModal() {
+            document.getElementById('addEntryModal').classList.add('hidden');
+        }
+
+        function submitNewEntry(e) {
+            e.preventDefault();
+            const rawEntryDate = document.getElementById('entryDate').value;
+            const formattedDate = formatDateForComparison(rawEntryDate);
+
+            const newItem = {
+                id: 'INV-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                name: document.getElementById('entryName')?.value?.trim() || '',
+                model: document.getElementById('entryModel').value,
+                engine: document.getElementById('entryEngine').value.trim(),
+                frame: document.getElementById('entryFrame').value.trim(),
+                date: formattedDate,
+                colour: document.getElementById('entryColour').value,
+                remarks: document.getElementById('entryRemarks').value.trim(),
+                isSold: false,
+                soldData: null,
+                timestamp: Date.now()
+            };
+
+            state.inventory.push(newItem);
+            saveData();
+            closeAddEntryModal();
+            showNotification('Success', 'New vehicle entry added successfully!', 'success');
+            renderAvailableStock();
+        }
+
+        function openEditModal(id) {
+            const item = state.inventory.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('editEntryId').value = item.id;
+            if(document.getElementById('editName')) document.getElementById('editName').value = item.name;
+            document.getElementById('editModel').value = item.model;
+            document.getElementById('editEngine').value = item.engine;
+            document.getElementById('editFrame').value = item.frame;
+            document.getElementById('editDate').value = formatDateForInput(item.date);
+            document.getElementById('editColour').value = item.colour;
+            document.getElementById('editRemarks').value = item.remarks || '';
+
+            const now = new Date();
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+            document.getElementById('soldDateInput').value = `${y}-${m}-${d}`;
+
+            document.getElementById('markAsSoldCheck').checked = false;
+            document.getElementById('saleFieldsContainer').classList.add('hidden');
+            document.getElementById('financeProviderBox').classList.add('hidden');
+            document.getElementById('soldTo').value = '';
+            document.getElementById('paymentMode').value = '';
+            document.getElementById('financeProvider').value = '';
+            document.getElementById('adPointRegion').value = '';
+            document.getElementById('adPointContainer').classList.add('hidden');
+
+            document.getElementById('editEntryModal').classList.remove('hidden');
+            applyTheme(state.theme);
+        }
+
+        function closeEditModal() {
+            document.getElementById('editEntryModal').classList.add('hidden');
+        }
+
+        function toggleSaleFields() {
+            const isChecked = document.getElementById('markAsSoldCheck').checked;
+            const container = document.getElementById('saleFieldsContainer');
+            if (isChecked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleAdPointField() {
+            const soldToVal = document.getElementById('soldTo').value;
+            const adContainer = document.getElementById('adPointContainer');
+            if (soldToVal === 'Partner') {
+                adContainer.classList.remove('hidden');
+            } else {
+                adContainer.classList.add('hidden');
+                document.getElementById('adPointRegion').value = '';
+            }
+        }
+
+        function toggleFinanceProvider() {
+            const mode = document.getElementById('paymentMode').value;
+            const box = document.getElementById('financeProviderBox');
+            const label = document.getElementById('financeProviderLabel');
+            const input = document.getElementById('financeProvider');
+
+            if (mode === 'Finance') {
+                box.classList.remove('hidden');
+                label.innerText = 'Finance Provider';
+                input.placeholder = 'Enter finance provider name...';
+            } else if (mode === 'Bank Transfer' || mode === 'UPI') {
+                box.classList.remove('hidden');
+                label.innerText = 'Reference ID / Transaction ID';
+                input.placeholder = 'Enter reference/transaction ID...';
+            } else {
+                box.classList.add('hidden');
+                input.value = '';
+            }
+        }
+
+        function submitSoldEntry(e) {
+            e.preventDefault();
+            const id = document.getElementById('editEntryId').value;
+            const item = state.inventory.find(i => i.id === id);
+            if (!item) return;
+
+            const rawEditDate = document.getElementById('editDate').value;
+            const formattedEditDate = formatDateForComparison(rawEditDate);
+
+            if(document.getElementById('editName')) item.name = document.getElementById('editName').value.trim();
+            item.model = document.getElementById('editModel').value;
+            item.engine = document.getElementById('editEngine').value.trim();
+            item.frame = document.getElementById('editFrame').value.trim();
+            item.date = formattedEditDate;
+            item.colour = document.getElementById('editColour').value;
+            item.remarks = document.getElementById('editRemarks').value.trim();
+
+            const isSoldMarked = document.getElementById('markAsSoldCheck').checked;
+            if (isSoldMarked) {
+                item.isSold = true;
+                const rawSoldDate = document.getElementById('soldDateInput').value;
+                const formattedSoldDate = formatDateForComparison(rawSoldDate);
+
+                const soldToVal = document.getElementById('soldTo').value;
+                const adRegionVal = soldToVal === 'Partner' ? document.getElementById('adPointRegion').value.trim() : '';
+
+                const mode = document.getElementById('paymentMode').value;
+                const extraVal = (mode === 'Finance' || mode === 'Bank Transfer' || mode === 'UPI') ? document.getElementById('financeProvider').value.trim() : 'N/A';
+
+                item.soldData = {
+                    soldTo: soldToVal,
+                    adPointRegion: adRegionVal,
+                    paymentMode: mode,
+                    financeProvider: extraVal,
+                    soldDate: formattedSoldDate || `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`,
+                    soldTimestamp: Date.now()
+                };
+            }
+
+            saveData();
+            closeEditModal();
+            showNotification('Updated', 'Vehicle details successfully updated!', 'success');
+            renderAvailableStock();
+        }
+
+        function onSoldTimeframeChange() {
+            const tf = document.getElementById('filterSoldTimeframe').value;
+            const monthBox = document.getElementById('soldMonthBox');
+            const yearBox = document.getElementById('soldYearBox');
+            const manualBox = document.getElementById('soldManualBox');
+            
+            monthBox.classList.add('hidden');
+            yearBox.classList.add('hidden');
+            manualBox.classList.add('hidden');
+
+            if (tf === 'monthly') {
+                monthBox.classList.remove('hidden');
+                document.getElementById('filterSoldMonth').value = new Date().getMonth();
+            } else if (tf === 'yearly') {
+                yearBox.classList.remove('hidden');
+                populateSoldYears();
+            } else if (tf === 'manual') {
+                manualBox.classList.remove('hidden');
+            }
+            renderSoldStock();
+        }
+
+        function populateSoldYears() {
+            const select = document.getElementById('filterSoldYear');
+            if (select.children.length === 0) {
+                for (let y = 1990; y <= 2099; y++) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.innerText = y;
+                    if (y === new Date().getFullYear()) opt.selected = true;
+                    select.appendChild(opt);
+                }
+            }
+        }
+
+        function resetSoldFilters() {
+            if(document.getElementById('filterSoldName')) document.getElementById('filterSoldName').value = '';
+            document.getElementById('filterSoldModel').value = '';
+            document.getElementById('filterSoldColour').value = '';
+            document.getElementById('filterSoldEngine').value = '';
+            document.getElementById('filterSoldFrame').value = '';
+            document.getElementById('filterSoldTo').value = '';
+            document.getElementById('filterSoldPayment').value = '';
+            document.getElementById('filterSoldTimeframe').value = 'all';
+            document.getElementById('filterSoldFromDate').value = '';
+            document.getElementById('filterSoldToDate').value = '';
+            document.getElementById('soldMonthBox').classList.add('hidden');
+            document.getElementById('soldYearBox').classList.add('hidden');
+            document.getElementById('soldManualBox').classList.add('hidden');
+            renderSoldStock();
+        }
+
+        function renderSoldStock() {
+            const tbody = document.getElementById('soldStockTableBody');
+            const emptyBox = document.getElementById('soldStockEmpty');
+            tbody.innerHTML = '';
+
+            const fName = document.getElementById('filterSoldName') ? document.getElementById('filterSoldName').value.toLowerCase() : '';
+            const fModel = document.getElementById('filterSoldModel').value;
+            const fColour = document.getElementById('filterSoldColour').value;
+            const fEng = document.getElementById('filterSoldEngine').value.toLowerCase();
+            const fFrm = document.getElementById('filterSoldFrame').value.toLowerCase();
+            const fSoldTo = document.getElementById('filterSoldTo').value;
+            const fPayment = document.getElementById('filterSoldPayment').value;
+            const fTf = document.getElementById('filterSoldTimeframe').value;
+            const fMonth = document.getElementById('filterSoldMonth').value;
+            const fYear = document.getElementById('filterSoldYear').value;
+            const rawFromDate = document.getElementById('filterSoldFromDate').value;
+            const rawToDate = document.getElementById('filterSoldToDate').value;
+            const fFromDate = rawFromDate ? formatDateForComparison(rawFromDate) : '';
+            const fToDate = rawToDate ? formatDateForComparison(rawToDate) : '';
+
+            const now = new Date();
+
+            const soldItems = state.inventory.filter(item => {
+                if (!item.isSold) return false;
+                if (fName && !item.name.toLowerCase().includes(fName)) return false;
+                if (fModel && item.model !== fModel) return false;
+                if (fColour && item.colour !== fColour) return false;
+                if (fEng && !item.engine.toLowerCase().includes(fEng)) return false;
+                if (fFrm && !item.frame.toLowerCase().includes(fFrm)) return false;
+                if (fSoldTo && item.soldData.soldTo !== fSoldTo) return false;
+                if (fPayment && item.soldData.paymentMode !== fPayment) return false;
+
+                if (fTf !== 'all' && item.soldData.soldDate) {
+                    const saleDateObj = parseDateDMY(item.soldData.soldDate);
+                    if (!saleDateObj) return false;
+
+                    if (fTf === 'daily') {
+                        if (saleDateObj.toDateString() !== now.toDateString()) return false;
+                    } else if (fTf === 'weekly') {
+                        const currentDay = now.getDay();
+                        const sunday = new Date(now);
+                        sunday.setDate(now.getDate() - currentDay);
+                        sunday.setHours(0,0,0,0);
+
+                        const saturday = new Date(sunday);
+                        saturday.setDate(saturday.getDate() + 6);
+                        saturday.setHours(23,59,59,999);
+
+                        if (saleDateObj < sunday || saleDateObj > saturday) return false;
+                    } else if (fTf === 'monthly') {
+                        if (saleDateObj.getMonth() !== parseInt(fMonth) || saleDateObj.getFullYear() !== now.getFullYear()) return false;
+                    } else if (fTf === 'yearly') {
+                        if (fYear && saleDateObj.getFullYear().toString() !== fYear.toString()) return false;
+                    } else if (fTf === 'manual') {
+                        const itemTime = saleDateObj.setHours(0,0,0,0);
+                        if (fFromDate) {
+                            const fromObj = parseDateDMY(fFromDate);
+                            if (fromObj && itemTime < fromObj.setHours(0,0,0,0)) return false;
+                        }
+                        if (fToDate) {
+                            const toObj = parseDateDMY(fToDate);
+                            if (toObj && itemTime > toObj.setHours(23,59,59,999)) return false;
+                        }
+                    }
+                }
+
+                return true;
+            });
+
+            if (soldItems.length === 0) {
+                emptyBox.classList.remove('hidden');
+            } else {
+                emptyBox.classList.add('hidden');
+                soldItems.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-700/40 cursor-pointer transition';
+                    tr.onclick = () => openSoldDetailModal(item.id);
+                    
+                    const soldToDisplay = item.soldData.soldTo === 'Partner' && item.soldData.adPointRegion 
+                        ? `${escapeHtml(item.soldData.soldTo)} <span class="text-[10px] text-indigo-400 block">(${escapeHtml(item.soldData.adPointRegion)})</span>` 
+                        : escapeHtml(item.soldData.soldTo);
+
+                    const namePart = item.name ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(item.name)}</span>` : '';
+
+                    tr.innerHTML = `
+                        <td class="p-4 font-semibold theme-text-main">
+                            ${namePart}
+                            <span class="text-xs font-bold text-emerald-500">${escapeHtml(item.model || 'N/A')}</span>
+                        </td>
+                        <td class="p-4 text-slate-400 font-mono">Eng: ${escapeHtml(item.engine)}<br>Frm: ${escapeHtml(item.frame)}</td>
+                        <td class="p-4 text-slate-400 font-medium">${soldToDisplay}</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.paymentMode)}</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.soldDate)}</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.financeProvider)}</td>
+                        <td class="p-4 text-right space-x-1">
+                            <button onclick="event.stopPropagation(); openSoldDetailModal('${item.id}')" class="px-2.5 py-1 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="View Info">
+                                <i class="fa-solid fa-receipt"></i>
+                                <span>Info</span>
+                            </button>
+                            <button onclick="event.stopPropagation(); returnToAvailable('${item.id}')" class="px-2.5 py-1 bg-amber-600/25 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="Return to Available Stock">
+                                <i class="fa-solid fa-rotate-left"></i>
+                                <span>Return</span>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function returnToAvailable(id) {
+            if (confirm('Are you sure you want to return this vehicle back to available stock?')) {
+                const item = state.inventory.find(i => i.id === id);
+                if (item) {
+                    item.isSold = false;
+                    item.soldData = null;
+                    saveData();
+                    renderSoldStock();
+                    updateDashboardBadges();
+                    showNotification('Returned', 'Vehicle moved back to available stock successfully.', 'success');
+                }
+            }
+        }
+
+        function openSoldDetailModal(id) {
+            const item = state.inventory.find(i => i.id === id);
+            if (!item || !item.soldData) return;
+
+            const extraLabel = item.soldData.paymentMode === 'Finance' ? 'Finance Provider' : 'Reference ID';
+            let adPointRow = '';
+            if (item.soldData.soldTo === 'Partner' && item.soldData.adPointRegion) {
+                adPointRow = `<div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">AD Point / Region:</span><span class="font-semibold text-indigo-400">${escapeHtml(item.soldData.adPointRegion)}</span></div>`;
+            }
+
+            const content = document.getElementById('soldDetailContent');
+            content.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Model:</span><span class="font-semibold text-indigo-400">${escapeHtml(item.model)}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Engine Number:</span><span class="font-mono text-slate-200">${escapeHtml(item.engine)}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Frame Number:</span><span class="font-mono text-slate-200">${escapeHtml(item.frame)}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Colour & Entry Date:</span><span class="text-slate-200 capitalize">${escapeHtml(item.colour)} (${escapeHtml(item.date)})</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Sold To:</span><span class="font-bold text-emerald-400">${escapeHtml(item.soldData.soldTo)}</span></div>
+                    ${adPointRow}
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Mode of Payment:</span><span class="text-slate-200">${escapeHtml(item.soldData.paymentMode)}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">${extraLabel}:</span><span class="text-slate-200">${escapeHtml(item.soldData.financeProvider)}</span></div>
+                    <div class="flex justify-between pb-2"><span class="text-slate-400">Date of Sale:</span><span class="text-slate-200">${escapeHtml(item.soldData.soldDate)}</span></div>
+                </div>
+            `;
+            document.getElementById('soldDetailModal').classList.remove('hidden');
+            applyTheme(state.theme);
+        }
+
+        function closeSoldDetailModal() {
+            document.getElementById('soldDetailModal').classList.add('hidden');
+        }
+
+        function onReportTimeframeChange() {
+            const tf = document.getElementById('reportTimeframe').value;
+            const monthBox = document.getElementById('reportMonthBox');
+            const yearBox = document.getElementById('reportYearBox');
+            const manualBox = document.getElementById('reportManualBox');
+            
+            monthBox.classList.add('hidden');
+            yearBox.classList.add('hidden');
+            manualBox.classList.add('hidden');
+
+            if (tf === 'monthly') {
+                monthBox.classList.remove('hidden');
+                document.getElementById('filterReportMonth').value = new Date().getMonth();
+            } else if (tf === 'yearly') {
+                yearBox.classList.remove('hidden');
+                populateReportYears();
+            } else if (tf === 'manual') {
+                manualBox.classList.remove('hidden');
+            }
+            generateReport();
+        }
+
+        function populateReportYears() {
+            const select = document.getElementById('filterReportYear');
+            if (select.children.length === 0) {
+                for (let y = 1990; y <= 2099; y++) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.innerText = y;
+                    if (y === new Date().getFullYear()) opt.selected = true;
+                    select.appendChild(opt);
+                }
+            }
+        }
+
+        function resetReportFilters() {
+            document.getElementById('reportTimeframe').value = 'all';
+            document.getElementById('filterReportStatus').value = '';
+            document.getElementById('filterReportFromDate').value = '';
+            document.getElementById('filterReportToDate').value = '';
+            document.getElementById('reportMonthBox').classList.add('hidden');
+            document.getElementById('reportYearBox').classList.add('hidden');
+            document.getElementById('reportManualBox').classList.add('hidden');
+            generateReport();
+        }
+
+        // Helper to get currently filtered report items
+        function getFilteredReportItems() {
+            const tf = document.getElementById('reportTimeframe').value;
+            const statusFilter = document.getElementById('filterReportStatus').value;
+            const fMonth = document.getElementById('filterReportMonth').value;
+            const fYear = document.getElementById('filterReportYear').value;
+            const rawFromDate = document.getElementById('filterReportFromDate').value;
+            const rawToDate = document.getElementById('filterReportToDate').value;
+            const fFromDate = rawFromDate ? formatDateForComparison(rawFromDate) : '';
+            const fToDate = rawToDate ? formatDateForComparison(rawToDate) : '';
+
+            const now = new Date();
+            const reportRows = [];
+
+            state.inventory.forEach(item => {
+                let include = true;
+                const statusStr = item.isSold ? 'Sold' : 'Available';
+
+                // Apply Status / Flow Filter
+                if (statusFilter && statusStr !== statusFilter) {
+                    include = false;
+                }
+
+                if (include) {
+                    const parts = item.date.split('-');
+                    let itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+                    if (tf !== 'all') {
+                        if (tf === 'daily') {
+                            if (itemDate.toDateString() !== now.toDateString()) include = false;
+                        } else if (tf === 'weekly') {
+                            const currentDay = now.getDay();
+                            const sunday = new Date(now);
+                            sunday.setDate(now.getDate() - currentDay);
+                            sunday.setHours(0,0,0,0);
+
+                            const saturday = new Date(sunday);
+                            saturday.setDate(saturday.getDate() + 6);
+                            saturday.setHours(23,59,59,999);
+
+                            if (itemDate < sunday || itemDate > saturday) include = false;
+                        } else if (tf === 'monthly') {
+                            if (itemDate.getMonth() !== parseInt(fMonth) || itemDate.getFullYear() !== now.getFullYear()) include = false;
+                        } else if (tf === 'yearly') {
+                            if (fYear && itemDate.getFullYear().toString() !== fYear.toString()) include = false;
+                        } else if (tf === 'manual') {
+                            const itemTime = itemDate.setHours(0,0,0,0);
+                            if (fFromDate) {
+                                const fromObj = parseDateDMY(fFromDate);
+                                if (fromObj && itemTime < fromObj.setHours(0,0,0,0)) include = false;
+                            }
+                            if (fToDate) {
+                                const toObj = parseDateDMY(fToDate);
+                                if (toObj && itemTime > toObj.setHours(23,59,59,999)) include = false;
+                            }
+                        }
+                    }
+                }
+
+                if (include) {
+                    const soldToVal = item.isSold && item.soldData ? (item.soldData.soldTo + (item.soldData.adPointRegion ? ' (' + item.soldData.adPointRegion + ')' : '')) : 'N/A';
+                    reportRows.push({
+                        status: item.isSold ? 'Outgoing (Sold)' : 'Available Stock',
+                        name: item.name || 'N/A',
+                        model: item.model || 'N/A',
+                        engine: item.engine,
+                        frame: item.frame,
+                        colour: item.colour || 'N/A',
+                        entryDate: item.date,
+                        soldTo: soldToVal,
+                        paymentMode: item.isSold && item.soldData ? item.soldData.paymentMode : 'N/A',
+                        referenceId: item.isSold && item.soldData ? item.soldData.financeProvider : 'N/A',
+                        actionDate: item.isSold && item.soldData ? item.soldData.soldDate : 'N/A'
+                    });
+                }
+            });
+            return reportRows;
+        }
+
+        function generateReport() {
+            const tf = document.getElementById('reportTimeframe').value;
+            const reportRows = getFilteredReportItems();
+
+            let incoming = 0;
+            let outgoing = 0;
+            let holding = 0;
+
+            reportRows.forEach(r => {
+                if (r.status.includes('Sold')) {
+                    outgoing++;
+                } else {
+                    holding++;
+                    incoming++;
+                }
+            });
+
+            document.getElementById('reportIncomingCount').innerText = incoming;
+            document.getElementById('reportOutgoingCount').innerText = outgoing;
+            document.getElementById('reportHoldingCount').innerText = holding;
+            document.getElementById('reportTimestamp').innerText = `Timeframe: ${tf.toUpperCase()}`;
+
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+            reportRows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/40 transition';
+                const statusColor = r.status.includes('Sold') ? 'text-emerald-400 font-semibold' : 'text-indigo-400 font-semibold';
+                const namePart = r.name && r.name !== 'N/A' ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(r.name)}</span>` : '';
+                tr.innerHTML = `
+                    <td class="p-4 ${statusColor}">${escapeHtml(r.status)}</td>
+                    <td class="p-4 font-semibold theme-text-main">
+                        ${namePart}
+                        <span class="text-xs font-bold text-indigo-500">${escapeHtml(r.model)}</span>
+                    </td>
+                    <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.engine)}</td>
+                    <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.frame)}</td>
+                    <td class="p-4 text-slate-400 capitalize">${escapeHtml(r.colour)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.entryDate)}</td>
+                    <td class="p-4 text-slate-400 font-medium">${escapeHtml(r.soldTo)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.paymentMode)}</td>
+                    <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.referenceId)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.actionDate)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Export Filtered Report to Excel (CSV format compatible with Excel)
+        function exportReportToExcel() {
+            const rows = getFilteredReportItems();
+            if (rows.length === 0) {
+                showNotification('Export Failed', 'No records found for the selected timeframe to export.', 'error');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Status,Model,Engine Number,Frame Number,Colour,Entry Date,Sold To,Mode of Payment,Reference ID,Date of Sale\r\n";
+
+            rows.forEach(r => {
+                let row = `"${r.status}","${r.model}","${r.engine}","${r.frame}","${r.colour}","${r.entryDate}","${r.soldTo}","${r.paymentMode}","${r.referenceId}","${r.actionDate}"`;
+                csvContent += row + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Inventory_Report_${document.getElementById('reportTimeframe').value}_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotification('Success', 'Report successfully exported to Excel (CSV)!', 'success');
+        }
+
+        // Export Filtered Report to PDF (Triggers Print Dialog configured via CSS)
+        function exportReportToPDF() {
+            const rows = getFilteredReportItems();
+            if (rows.length === 0) {
+                showNotification('Export Failed', 'No records found for the selected timeframe to export.', 'error');
+                return;
+            }
+            window.print();
+        }
+
+        function showForgotModal() {
+            document.getElementById('forgotStep1').classList.remove('hidden');
+            document.getElementById('forgotStep2').classList.add('hidden');
+            document.getElementById('forgotError').classList.add('hidden');
+            document.getElementById('sqAns1').value = '';
+            document.getElementById('sqAns2').value = '';
+            document.getElementById('sqAns3').value = '';
+
+            document.getElementById('sqLabel1').innerText = `1. ${state.securityQuestions.q1}`;
+            document.getElementById('sqLabel2').innerText = `2. ${state.securityQuestions.q2}`;
+            document.getElementById('sqLabel3').innerText = `3. ${state.securityQuestions.q3}`;
+
+            document.getElementById('forgotModal').classList.remove('hidden');
+            applyTheme(state.theme);
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.add('hidden');
+        }
+
+        function verifySecurityAnswers() {
+            const a1 = document.getElementById('sqAns1').value.trim().toLowerCase();
+            const a2 = document.getElementById('sqAns2').value.trim().toLowerCase();
+            const a3 = document.getElementById('sqAns3').value.trim().toLowerCase();
+
+            if (a1 === state.securityQuestions.a1.toLowerCase() &&
+                a2 === state.securityQuestions.a2.toLowerCase() &&
+                a3 === state.securityQuestions.a3.toLowerCase()) {
+                document.getElementById('forgotStep1').classList.add('hidden');
+                document.getElementById('forgotStep2').classList.remove('hidden');
+            } else {
+                document.getElementById('forgotError').classList.remove('hidden');
+            }
+        }
+
+        function updateNewPassword() {
+            const p1 = document.getElementById('newPass').value.trim();
+            const p2 = document.getElementById('confirmNewPass').value.trim();
+
+            if (!p1 || p1 !== p2) {
+                showNotification('Error', 'Passwords do not match or empty. Please retry.', 'error');
+                return;
+            }
+
+            if (state.users.length > 0) {
+                state.users[0].password = p1;
+                saveData();
+            }
+            closeForgotModal();
+            showNotification('Success', 'Password updated successfully! You can now log in.', 'success');
+        }
+
+        function openSettingsModal() {
+            renderDeviceList();
+            const userObj = state.users.find(u => u.username === state.currentUser);
+            if (userObj) {
+                document.getElementById('settingsNewUsername').value = userObj.username;
+            }
+            document.getElementById('settingsModal').classList.remove('hidden');
+            applyTheme(state.theme);
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function updateCurrentCredentials() {
+            const newU = document.getElementById('settingsNewUsername').value.trim();
+            const newP = document.getElementById('settingsNewPassword').value.trim();
+
+            if (!newU && !newP) {
+                showNotification('Error', 'Please enter a new username or password to update.', 'error');
+                return;
+            }
+
+            const userObj = state.users.find(u => u.username === state.currentUser);
+            if (!userObj) {
+                showNotification('Error', 'Active user session not found.', 'error');
+                return;
+            }
+
+            if (newU && newU !== userObj.username) {
+                const existingUser = state.users.find(u => u.username === newU);
+                if (existingUser) {
+                    showNotification('Error', 'This username is already taken by another profile.', 'error');
+                    return;
+                }
+                userObj.username = newU;
+                state.currentUser = newU;
+            }
+
+            if (newP) {
+                userObj.password = newP;
+            }
+
+            saveData();
+            document.getElementById('settingsNewPassword').value = '';
+            renderDeviceList();
+            showNotification('Success', 'Credentials updated successfully!', 'success');
+        }
+
+        function renderDeviceList() {
+            const container = document.getElementById('deviceListContainer');
+            container.innerHTML = '';
+            document.getElementById('deviceCountLabel').innerText = state.users.length;
+
+            state.users.forEach((usr, idx) => {
+                const div = document.createElement('div');
+                div.className = 'theme-subcard flex items-center justify-between p-3 bg-slate-950 border border-slate-700 rounded-xl';
+                
+                div.innerHTML = `
+                    <div>
+                        <p class="font-bold theme-text-main text-white text-xs">${escapeHtml(usr.deviceName || `Device \${idx+1}`)}</p>
+                        <p class="text-[10px] text-slate-400 font-mono">Username: ${escapeHtml(usr.username)}</p>
+                    </div>
+                    ${idx > 0 ? `<button type="button" onclick="removeDevice(\${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-900/50 rounded cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Delete</button>` : '<span class="text-[10px] bg-indigo-600/25 text-indigo-400 px-2 py-0.5 rounded">MASTER</span>'}
+                `;
+                container.appendChild(div);
+            });
+            applyTheme(state.theme);
+        }
+
+        function addNewDevice() {
+            if (state.users.length >= 10) {
+                showNotification('Limit Reached', 'Maximum limit of 10 devices reached.', 'error');
+                return;
+            }
+
+            const u = document.getElementById('newDeviceUser').value.trim();
+            const p = document.getElementById('newDevicePass').value.trim();
+
+            if (!u || !p) {
+                showNotification('Error', 'Please provide both username and password for the new device.', 'error');
+                return;
+            }
+
+            state.users.push({
+                username: u,
+                password: p,
+                deviceName: `Device ${state.users.length + 1}`
+            });
+            saveData();
+            document.getElementById('newDeviceUser').value = '';
+            document.getElementById('newDevicePass').value = '';
+            renderDeviceList();
+            showNotification('Success', 'New device credentials configured successfully!', 'success');
+        }
+
+        function removeDevice(idx) {
+            if (idx === 0) {
+                showNotification('Error', 'Cannot remove Master Device.', 'error');
+                return;
+            }
+            state.users.splice(idx, 1);
+            saveData();
+            renderDeviceList();
+            showNotification('Removed', 'Device access revoked successfully.', 'success');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
