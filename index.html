@@ -7,6 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+        
+        window.firebaseAppInit = { initializeApp, getFirestore, collection, getDocs, setDoc, doc, onSnapshot, getDoc };
+    </script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .modal-transition { transition: opacity 0.3s ease, transform 0.3s ease; }
@@ -1001,25 +1010,91 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfCrGef8trQgJgpuzhc27zowj_ZwEugzU",
+            authDomain: "viswasai-inventory.firebaseapp.com",
+            projectId: "viswasai-inventory",
+            storageBucket: "viswasai-inventory.firebasestorage.app",
+            messagingSenderId: "460877157017",
+            appId: "1:460877157017:web:0dd52e28b8e63f77d2de08"
+        };
+
+        let db = null;
+        let isFirebaseInitialized = false;
+
         let state = {
             currentUser: null,
             currentDevice: 'Master Device',
             theme: localStorage.getItem('inv_theme') || 'dark',
-            users: JSON.parse(localStorage.getItem('inv_users')) || [
+            users: [
                 { username: 'Admin@1309', password: '123456789', deviceName: 'Master Device' }
             ],
-            securityQuestions: JSON.parse(localStorage.getItem('inv_sq')) || {
+            securityQuestions: {
                 q1: 'In which hospital snehith had born?', a1: 'cr reddy',
                 q2: 'In which school Vikranth completed his 10th?', a2: 'minerva',
                 q3: 'When is your wedding anniversary?', a3: 'dec12'
             },
-            inventory: JSON.parse(localStorage.getItem('inv_items')) || []
+            inventory: []
         };
 
-        // Initialize Theme on Load
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialize Firebase and load cloud data on startup
+        document.addEventListener('DOMContentLoaded', async () => {
             applyTheme(state.theme);
+
+            let attempts = 0;
+            while (!window.firebaseAppInit && attempts < 20) {
+                await new Promise(r => setTimeout(r, 100));
+                attempts++;
+            }
+
+            if (window.firebaseAppInit) {
+                const { initializeApp, getFirestore, doc, onSnapshot, getDoc } = window.firebaseAppInit;
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    isFirebaseInitialized = true;
+
+                    // Fetch initial data from Firestore
+                    await loadDataFromCloud();
+
+                    // Real-time listener: instantly syncs across all devices
+                    onSnapshot(doc(db, "inventory_db", "main_doc"), (docSnap) => {
+                        if (docSnap.exists()) {
+                            const cloudData = docSnap.data();
+                            if (cloudData.inventory) state.inventory = cloudData.inventory;
+                            if (cloudData.users) state.users = cloudData.users;
+                            if (cloudData.securityQuestions) state.securityQuestions = cloudData.securityQuestions;
+                            
+                            updateDashboardBadges();
+                            if (!document.getElementById('availableStockView').classList.contains('hidden')) renderAvailableStock();
+                            if (!document.getElementById('soldStockView').classList.contains('hidden')) renderSoldStock();
+                            if (!document.getElementById('recordsView').classList.contains('hidden')) generateReport();
+                        }
+                    });
+                } catch (err) {
+                    console.error("Firebase initialization error:", err);
+                }
+            }
         });
+
+        async function loadDataFromCloud() {
+            if (!isFirebaseInitialized) return;
+            const { doc, getDoc } = window.firebaseAppInit;
+            try {
+                const snap = await getDoc(doc(db, "inventory_db", "main_doc"));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.inventory) state.inventory = data.inventory;
+                    if (data.users) state.users = data.users;
+                    if (data.securityQuestions) state.securityQuestions = data.securityQuestions;
+                } else {
+                    await saveData();
+                }
+            } catch (e) {
+                console.error("Error loading cloud data:", e);
+            }
+        }
 
         function toggleThemeMode() {
             state.theme = state.theme === 'dark' ? 'light' : 'dark';
@@ -1037,7 +1112,6 @@
                 toggleLabel.innerText = 'Light Mode';
                 toggleIcon.className = 'fa-solid fa-sun';
 
-                // Update cards, headers, inputs for light mode styling classes
                 document.querySelectorAll('.theme-card').forEach(el => {
                     if (el.classList.contains('bg-gradient-to-b')) {
                         el.className = el.className.replace(/bg-gradient-to-b from-slate-800 to-slate-800\/60/g, 'bg-gradient-to-b from-white to-slate-50 shadow-md').replace(/border-slate-700/g, 'border-slate-200');
@@ -1122,10 +1196,22 @@
             }
         }
 
-        function saveData() {
-            localStorage.setItem('inv_users', JSON.stringify(state.users));
-            localStorage.setItem('inv_sq', JSON.stringify(state.securityQuestions));
-            localStorage.setItem('inv_items', JSON.stringify(state.inventory));
+        async function saveData() {
+            localStorage.setItem('inv_theme', state.theme);
+
+            if (isFirebaseInitialized && db) {
+                const { doc, setDoc } = window.firebaseAppInit;
+                try {
+                    await setDoc(doc(db, "inventory_db", "main_doc"), {
+                        inventory: state.inventory,
+                        users: state.users,
+                        securityQuestions: state.securityQuestions,
+                        lastUpdated: Date.now()
+                    });
+                } catch (e) {
+                    console.error("Error saving data to Firebase:", e);
+                }
+            }
         }
 
         function showNotification(title, message, type = 'info') {
@@ -1795,7 +1881,6 @@
             generateReport();
         }
 
-        // Helper to get currently filtered report items
         function getFilteredReportItems() {
             const tf = document.getElementById('reportTimeframe').value;
             const statusFilter = document.getElementById('filterReportStatus').value;
@@ -1813,7 +1898,6 @@
                 let include = true;
                 const statusStr = item.isSold ? 'Sold' : 'Available';
 
-                // Apply Status / Flow Filter
                 if (statusFilter && statusStr !== statusFilter) {
                     include = false;
                 }
@@ -1922,7 +2006,6 @@
             });
         }
 
-        // Export Filtered Report to Excel (CSV format compatible with Excel)
         function exportReportToExcel() {
             const rows = getFilteredReportItems();
             if (rows.length === 0) {
@@ -1948,7 +2031,6 @@
             showNotification('Success', 'Report successfully exported to Excel (CSV)!', 'success');
         }
 
-        // Export Filtered Report to PDF (Triggers Print Dialog configured via CSS)
         function exportReportToPDF() {
             const rows = getFilteredReportItems();
             if (rows.length === 0) {
