@@ -109,6 +109,11 @@
                     </button>
                 </div>
             </header>
+            
+            <!-- Marquee Notification Banner -->
+            <div class="bg-indigo-600/20 border-b border-indigo-500/30 py-2 px-4 text-indigo-300 text-xs font-medium">
+               <!-- <marquee><B>Note:</b> "This is a Beta Version. kindly note and let us know if any issues found While using. It helps us to improve."</marquee> -->
+            </div>
 
             <!-- Main Banners Content -->
             <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-8 my-auto">
@@ -196,61 +201,12 @@
                         <label class="text-[10px] uppercase font-bold text-slate-400">Filter Model</label>
                         <select id="filterModel" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="">-- Select Model --</option>
-                            <option value="Passion Plus">Passion Plus</option>
-                            <option value="Splendor Plus">Splendor Plus</option>
-                            <option value="Splendor 2.O">Splendor 2.O</option>
-                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
-                            <option value="HF Delux">HF Delux</option>
-                            <option value="HF pro">HF pro</option>
-                            <option value="Xpulse">Xpulse</option>
-                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
-                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
-                            <option value="Pleasure Plus">Pleasure Plus</option>
-                            <option value="Pleasure Xtec">Pleasure Xtec</option>
-                            <option value="Destini 125 VX">Destini 125 VX</option>
-                            <option value="Destini 125 ZX">Destini 125 ZX</option>
-                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
                         </select>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] uppercase font-bold text-slate-400">Filter Colour</label>
                         <select id="filterColour" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="">-- Select Colour --</option>
-                            <option value="AOB">AOB</option>
-                            <option value="BCB">BCB</option>
-                            <option value="BHG">BHG</option>
-                            <option value="BIG">BIG</option>
-                            <option value="BKB">BKB</option>
-                            <option value="BLG">BLG</option>
-                            <option value="BLK">BLK</option>
-                            <option value="BMG">BMG</option>
-                            <option value="BRB">BRB</option>
-                            <option value="BRD">BRD</option>
-                            <option value="BPR">BPR</option>
-                            <option value="BSR">BSR</option>
-                            <option value="BTB">BTB</option>
-                            <option value="BTL">BTL</option>
-                            <option value="BKR">BKR</option>
-                            <option value="BGY">BGY</option>
-                            <option value="FWT">FWT</option>
-                            <option value="GMM">GMM</option>
-                            <option value="ILG">ILG</option>
-                            <option value="MAG">MAG</option>
-                            <option value="MBC">MBC</option>
-                            <option value="MBK">MBK</option>
-                            <option value="MGV">MGV</option>
-                            <option value="MGM">MGM</option>
-                            <option value="MNB">MNB</option>
-                            <option value="BMY">BMY</option>
-                            <option value="MVG">MVG</option>
-                            <option value="NRD">NRD</option>
-                            <option value="PBE">PBE</option>
-                            <option value="PEB">PEB</option>
-                            <option value="PKB">PKB</option>
-                            <option value="RPB">RPB</option>
-                            <option value="SBK">SBK</option>
-                            <option value="SRD">SRD</option>
-                            <option value="TBM">TBM</option>
                         </select>
                     </div>
                     <div class="space-y-1">
@@ -319,61 +275,12 @@
                         <label class="text-[10px] uppercase font-bold text-slate-400">Model</label>
                         <select id="filterSoldModel" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="">-- Select Model --</option>
-                            <option value="Passion Plus">Passion Plus</option>
-                            <option value="Splendor Plus">Splendor Plus</option>
-                            <option value="Splendor 2.O">Splendor 2.O</option>
-                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
-                            <option value="HF Delux">HF Delux</option>
-                            <option value="HF pro">HF pro</option>
-                            <option value="Xpulse">Xpulse</option>
-                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
-                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
-                            <option value="Pleasure Plus">Pleasure Plus</option>
-                            <option value="Pleasure Xtec">Pleasure Xtec</option>
-                            <option value="Destini 125 VX">Destini 125 VX</option>
-                            <option value="Destini 125 ZX">Destini 125 ZX</option>
-                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
                         </select>
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] uppercase font-bold text-slate-400">Colour</label>
                         <select id="filterSoldColour" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="">-- Select Colour --</option>
-                            <option value="AOB">AOB</option>
-                            <option value="BCB">BCB</option>
-                            <option value="BHG">BHG</option>
-                            <option value="BIG">BIG</option>
-                            <option value="BKB">BKB</option>
-                            <option value="BLG">BLG</option>
-                            <option value="BLK">BLK</option>
-                            <option value="BMG">BMG</option>
-                            <option value="BRB">BRB</option>
-                            <option value="BRD">BRD</option>
-                            <option value="BPR">BPR</option>
-                            <option value="BSR">BSR</option>
-                            <option value="BTB">BTB</option>
-                            <option value="BTL">BTL</option>
-                            <option value="BKR">BKR</option>
-                            <option value="BGY">BGY</option>
-                            <option value="FWT">FWT</option>
-                            <option value="GMM">GMM</option>
-                            <option value="ILG">ILG</option>
-                            <option value="MAG">MAG</option>
-                            <option value="MBC">MBC</option>
-                            <option value="MBK">MBK</option>
-                            <option value="MGV">MGV</option>
-                            <option value="MGM">MGM</option>
-                            <option value="MNB">MNB</option>
-                            <option value="BMY">BMY</option>
-                            <option value="MVG">MVG</option>
-                            <option value="NRD">NRD</option>
-                            <option value="PBE">PBE</option>
-                            <option value="PEB">PEB</option>
-                            <option value="PKB">PKB</option>
-                            <option value="RPB">RPB</option>
-                            <option value="SBK">SBK</option>
-                            <option value="SRD">SRD</option>
-                            <option value="TBM">TBM</option>
                         </select>
                     </div>
                     <div class="space-y-1">
@@ -631,20 +538,6 @@
                         <label class="font-medium text-slate-300">Model</label>
                         <select id="entryModel" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="" disabled selected>-- Select Model --</option>
-                            <option value="Passion Plus">Passion Plus</option>
-                            <option value="Splendor Plus">Splendor Plus</option>
-                            <option value="Splendor 2.O">Splendor 2.O</option>
-                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
-                            <option value="HF Delux">HF Delux</option>
-                            <option value="HF pro">HF pro</option>
-                            <option value="Xpulse">Xpulse</option>
-                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
-                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
-                            <option value="Pleasure Plus">Pleasure Plus</option>
-                            <option value="Pleasure Xtec">Pleasure Xtec</option>
-                            <option value="Destini 125 VX">Destini 125 VX</option>
-                            <option value="Destini 125 ZX">Destini 125 ZX</option>
-                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
                         </select>
                     </div>
                 </div>
@@ -667,41 +560,6 @@
                         <label class="font-medium text-slate-300">Colour</label>
                         <select id="entryColour" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="" disabled selected>-- Select Colour --</option>
-                            <option value="AOB">AOB</option>
-                            <option value="BCB">BCB</option>
-                            <option value="BHG">BHG</option>
-                            <option value="BIG">BIG</option>
-                            <option value="BKB">BKB</option>
-                            <option value="BLG">BLG</option>
-                            <option value="BLK">BLK</option>
-                            <option value="BMG">BMG</option>
-                            <option value="BRB">BRB</option>
-                            <option value="BRD">BRD</option>
-                            <option value="BPR">BPR</option>
-                            <option value="BSR">BSR</option>
-                            <option value="BTB">BTB</option>
-                            <option value="BTL">BTL</option>
-                            <option value="BKR">BKR</option>
-                            <option value="BGY">BGY</option>
-                            <option value="FWT">FWT</option>
-                            <option value="GMM">GMM</option>
-                            <option value="ILG">ILG</option>
-                            <option value="MAG">MAG</option>
-                            <option value="MBC">MBC</option>
-                            <option value="MBK">MBK</option>
-                            <option value="MGV">MGV</option>
-                            <option value="MGM">MGM</option>
-                            <option value="MNB">MNB</option>
-                            <option value="BMY">BMY</option>
-                            <option value="MVG">MVG</option>
-                            <option value="NRD">NRD</option>
-                            <option value="PBE">PBE</option>
-                            <option value="PEB">PEB</option>
-                            <option value="PKB">PKB</option>
-                            <option value="RPB">RPB</option>
-                            <option value="SBK">SBK</option>
-                            <option value="SRD">SRD</option>
-                            <option value="TBM">TBM</option>
                         </select>
                     </div>
                 </div>
@@ -731,20 +589,6 @@
                         <label class="font-medium text-slate-300">Model</label>
                         <select id="editModel" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="" disabled selected>-- Select Model --</option>
-                            <option value="Passion Plus">Passion Plus</option>
-                            <option value="Splendor Plus">Splendor Plus</option>
-                            <option value="Splendor 2.O">Splendor 2.O</option>
-                            <option value="Super Splendor 2.O">Super Splendor 2.O</option>
-                            <option value="HF Delux">HF Delux</option>
-                            <option value="HF pro">HF pro</option>
-                            <option value="Xpulse">Xpulse</option>
-                            <option value="Xtreme 125 Single Disc">Xtreme 125 Single Disc</option>
-                            <option value="Xtreme 125 Double Disc">Xtreme 125 Double Disc</option>
-                            <option value="Pleasure Plus">Pleasure Plus</option>
-                            <option value="Pleasure Xtec">Pleasure Xtec</option>
-                            <option value="Destini 125 VX">Destini 125 VX</option>
-                            <option value="Destini 125 ZX">Destini 125 ZX</option>
-                            <option value="Destini 125 ZX Plus">Destini 125 ZX Plus</option>
                         </select>
                     </div>
                 </div>
@@ -767,41 +611,6 @@
                         <label class="font-medium text-slate-300">Colour</label>
                         <select id="editColour" required class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="" disabled selected>-- Select Colour --</option>
-                            <option value="AOB">AOB</option>
-                            <option value="BCB">BCB</option>
-                            <option value="BHG">BHG</option>
-                            <option value="BIG">BIG</option>
-                            <option value="BKB">BKB</option>
-                            <option value="BLG">BLG</option>
-                            <option value="BLK">BLK</option>
-                            <option value="BMG">BMG</option>
-                            <option value="BRB">BRB</option>
-                            <option value="BRD">BRD</option>
-                            <option value="BPR">BPR</option>
-                            <option value="BSR">BSR</option>
-                            <option value="BTB">BTB</option>
-                            <option value="BTL">BTL</option>
-                            <option value="BKR">BKR</option>
-                            <option value="BGY">BGY</option>
-                            <option value="FWT">FWT</option>
-                            <option value="GMM">GMM</option>
-                            <option value="ILG">ILG</option>
-                            <option value="MAG">MAG</option>
-                            <option value="MBC">MBC</option>
-                            <option value="MBK">MBK</option>
-                            <option value="MGV">MGV</option>
-                            <option value="MGM">MGM</option>
-                            <option value="MNB">MNB</option>
-                            <option value="BMY">BMY</option>
-                            <option value="MVG">MVG</option>
-                            <option value="NRD">NRD</option>
-                            <option value="PBE">PBE</option>
-                            <option value="PEB">PEB</option>
-                            <option value="PKB">PKB</option>
-                            <option value="RPB">RPB</option>
-                            <option value="SBK">SBK</option>
-                            <option value="SRD">SRD</option>
-                            <option value="TBM">TBM</option>
                         </select>
                     </div>
                 </div>
@@ -951,6 +760,26 @@
                     </button>
                 </div>
 
+                <!-- Customize Dropdowns Section -->
+                <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-3">
+                    <h4 class="theme-text-main font-bold text-white text-sm"><i class="fa-solid fa-sliders text-indigo-400 mr-2"></i>Customize Dropdown Options</h4>
+                    <p class="text-slate-400">Add or remove items from the Model and Colour lists.</p>
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        <button onclick="promptAddNewColour()" class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-plus"></i><span>Add New Colour</span>
+                        </button>
+                        <button onclick="promptAddNewModel()" class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-plus"></i><span>Add New Model</span>
+                        </button>
+                        <button onclick="promptRemoveColour()" class="py-2.5 px-3 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl font-semibold transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-trash"></i><span>Remove Colour</span>
+                        </button>
+                        <button onclick="promptDeleteModel()" class="py-2.5 px-3 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl font-semibold transition flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-trash"></i><span>Delete Model</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Update Current User Credentials (Username & Password) -->
                 <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-3">
                     <h4 class="theme-text-main font-bold text-white text-sm"><i class="fa-solid fa-user-pen text-indigo-400 mr-2"></i>Update Username & Password</h4>
@@ -968,7 +797,7 @@
                     </div>
                 </div>
 
-                <div class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-3">
+                <div id="masterDeviceSection" class="theme-subcard p-4 bg-slate-900/80 border border-slate-700 rounded-xl space-y-3">
                     <h4 class="theme-text-main font-bold text-white text-sm"><i class="fa-solid fa-laptop text-indigo-400 mr-2"></i>Add Device / Share Access (Max 10 Devices)</h4>
                     <p class="text-slate-400">Configure new login credentials for sharing access with secondary devices (up to 10 total).</p>
                     <div class="space-y-3 pt-2">
@@ -993,6 +822,22 @@
             </div>
             <div class="flex justify-end pt-4 border-t border-slate-700">
                 <button onclick="closeSettingsModal()" class="theme-btn-sec px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl font-semibold transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Option Selection Prompt Modal (for Remove Colour / Delete Model) -->
+    <div id="selectionPromptModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+            <h3 id="selectionPromptTitle" class="font-bold text-white text-base">Select Item to Remove</h3>
+            <div class="space-y-1">
+                <select id="selectionPromptSelect" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                    <!-- Options populated dynamically -->
+                </select>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeSelectionPromptModal()" class="w-1/2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-semibold transition">Cancel</button>
+                <button id="selectionPromptConfirmBtn" onclick="" class="w-1/2 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold transition">Remove</button>
             </div>
         </div>
     </div>
@@ -1027,6 +872,18 @@
             currentUser: null,
             currentDevice: 'Master Device',
             theme: localStorage.getItem('inv_theme') || 'dark',
+            modelsList: [
+                "Passion Plus", "Splendor Plus", "Splendor 2.O", "Super Splendor 2.O", 
+                "HF Delux", "HF pro", "Xpulse", "Xtreme 125 Single Disc", 
+                "Xtreme 125 Double Disc", "Pleasure Plus", "Pleasure Xtec", 
+                "Destini 125 VX", "Destini 125 ZX", "Destini 125 ZX Plus"
+            ],
+            coloursList: [
+                "AOB", "BCB", "BHG", "BIG", "BKB", "BLG", "BLK", "BMG", "BRB", "BRD", 
+                "BPR", "BSR", "BTB", "BTL", "BKR", "BGY", "FWT", "GMM", "ILG", "MAG", 
+                "MBC", "MBK", "MGV", "MGM", "MNB", "BMY", "MVG", "NRD", "PBE", "PEB", 
+                "PKB", "RPB", "SBK", "SRD", "TBM"
+            ],
             users: [
                 { username: 'Admin@1309', password: '123456789', deviceName: 'Master Device' }
             ],
@@ -1041,6 +898,14 @@
         // Initialize Firebase and load cloud data on startup
         document.addEventListener('DOMContentLoaded', async () => {
             applyTheme(state.theme);
+            populateDropdowns();
+
+            // Refresh confirmation alert trigger
+            window.addEventListener('beforeunload', (e) => {
+                e.preventDefault();
+                e.returnValue = "Are you sure to Resubmit";
+                return "Are you sure to Resubmit";
+            });
 
             let attempts = 0;
             while (!window.firebaseAppInit && attempts < 20) {
@@ -1065,7 +930,10 @@
                             if (cloudData.inventory) state.inventory = cloudData.inventory;
                             if (cloudData.users) state.users = cloudData.users;
                             if (cloudData.securityQuestions) state.securityQuestions = cloudData.securityQuestions;
+                            if (cloudData.modelsList) state.modelsList = cloudData.modelsList;
+                            if (cloudData.coloursList) state.coloursList = cloudData.coloursList;
                             
+                            populateDropdowns();
                             updateDashboardBadges();
                             if (!document.getElementById('availableStockView').classList.contains('hidden')) renderAvailableStock();
                             if (!document.getElementById('soldStockView').classList.contains('hidden')) renderSoldStock();
@@ -1088,12 +956,122 @@
                     if (data.inventory) state.inventory = data.inventory;
                     if (data.users) state.users = data.users;
                     if (data.securityQuestions) state.securityQuestions = data.securityQuestions;
+                    if (data.modelsList) state.modelsList = data.modelsList;
+                    if (data.coloursList) state.coloursList = data.coloursList;
+                    populateDropdowns();
                 } else {
                     await saveData();
                 }
             } catch (e) {
                 console.error("Error loading cloud data:", e);
             }
+        }
+
+        function populateDropdowns() {
+            const modelSelectIds = ['filterModel', 'filterSoldModel', 'entryModel', 'editModel'];
+            const colourSelectIds = ['filterColour', 'filterSoldColour', 'entryColour', 'editColour'];
+
+            modelSelectIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const currentVal = el.value;
+                el.innerHTML = `<option value="">-- Select Model --</option>`;
+                state.modelsList.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.innerText = m;
+                    if (m === currentVal) opt.selected = true;
+                    el.appendChild(opt);
+                });
+            });
+
+            colourSelectIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const currentVal = el.value;
+                el.innerHTML = `<option value="">-- Select Colour --</option>`;
+                state.coloursList.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.innerText = c;
+                    if (c === currentVal) opt.selected = true;
+                    el.appendChild(opt);
+                });
+            });
+        }
+
+        // Customization Functions for Add/Remove Colours and Models
+        function promptAddNewColour() {
+            const newC = prompt("Enter new colour name:");
+            if (newC && newC.trim() !== '') {
+                const trimmed = newC.trim();
+                if (!state.coloursList.includes(trimmed)) {
+                    state.coloursList.push(trimmed);
+                    saveData();
+                    populateDropdowns();
+                    showNotification('Success', `Colour "${trimmed}" added successfully!`, 'success');
+                } else {
+                    showNotification('Error', 'Colour already exists in the list.', 'error');
+                }
+            }
+        }
+
+        function promptAddNewModel() {
+            const newM = prompt("Enter new model name:");
+            if (newM && newM.trim() !== '') {
+                const trimmed = newM.trim();
+                if (!state.modelsList.includes(trimmed)) {
+                    state.modelsList.push(trimmed);
+                    saveData();
+                    populateDropdowns();
+                    showNotification('Success', `Model "${trimmed}" added successfully!`, 'success');
+                } else {
+                    showNotification('Error', 'Model already exists in the list.', 'error');
+                }
+            }
+        }
+
+        function promptRemoveColour() {
+            openSelectionPromptModal("Remove Colour", state.coloursList, (selectedVal) => {
+                state.coloursList = state.coloursList.filter(c => c !== selectedVal);
+                saveData();
+                populateDropdowns();
+                showNotification('Removed', `Colour "${selectedVal}" removed successfully.`, 'success');
+            });
+        }
+
+        function promptDeleteModel() {
+            openSelectionPromptModal("Delete Model", state.modelsList, (selectedVal) => {
+                state.modelsList = state.modelsList.filter(m => m !== selectedVal);
+                saveData();
+                populateDropdowns();
+                showNotification('Deleted', `Model "${selectedVal}" deleted successfully.`, 'success');
+            });
+        }
+
+        function openSelectionPromptModal(title, itemsList, onConfirm) {
+            document.getElementById('selectionPromptTitle').innerText = title;
+            const selectEl = document.getElementById('selectionPromptSelect');
+            selectEl.innerHTML = '';
+            itemsList.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.innerText = item;
+                selectEl.appendChild(opt);
+            });
+            const confirmBtn = document.getElementById('selectionPromptConfirmBtn');
+            confirmBtn.onclick = () => {
+                const val = selectEl.value;
+                if (val) {
+                    closeSelectionPromptModal();
+                    onConfirm(val);
+                }
+            };
+            document.getElementById('selectionPromptModal').classList.remove('hidden');
+        }
+
+        function closeSelectionPromptModal() {
+            document.getElementById('selectionPromptModal').classList.add('hidden');
         }
 
         function toggleThemeMode() {
@@ -1206,6 +1184,8 @@
                         inventory: state.inventory,
                         users: state.users,
                         securityQuestions: state.securityQuestions,
+                        modelsList: state.modelsList,
+                        coloursList: state.coloursList,
                         lastUpdated: Date.now()
                     });
                 } catch (e) {
@@ -2098,6 +2078,15 @@
             if (userObj) {
                 document.getElementById('settingsNewUsername').value = userObj.username;
             }
+
+            // Restrict Master Device section for non-Master users
+            const masterSection = document.getElementById('masterDeviceSection');
+            if (state.currentUser === 'Admin@1309') {
+                masterSection.classList.remove('hidden');
+            } else {
+                masterSection.classList.add('hidden');
+            }
+
             document.getElementById('settingsModal').classList.remove('hidden');
             applyTheme(state.theme);
         }
@@ -2152,10 +2141,10 @@
                 
                 div.innerHTML = `
                     <div>
-                        <p class="font-bold theme-text-main text-white text-xs">${escapeHtml(usr.deviceName || `Device \${idx+1}`)}</p>
+                        <p class="font-bold theme-text-main text-white text-xs">${escapeHtml(usr.deviceName || `Device ${idx+1}`)}</p>
                         <p class="text-[10px] text-slate-400 font-mono">Username: ${escapeHtml(usr.username)}</p>
                     </div>
-                    ${idx > 0 ? `<button type="button" onclick="removeDevice(\${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-900/50 rounded cursor-pointer"><i class="fa-solid fa-trash mr-1"></i> Delete</button>` : '<span class="text-[10px] bg-indigo-600/25 text-indigo-400 px-2 py-0.5 rounded">MASTER</span>'}
+                    ${idx > 0 ? `<button type="button" onclick="revokeDevice(${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-900/50 rounded cursor-pointer"><i class="fa-solid fa-ban mr-1"></i> Revoke</button>` : '<span class="text-[10px] bg-indigo-600/25 text-indigo-400 px-2 py-0.5 rounded">MASTER</span>'}
                 `;
                 container.appendChild(div);
             });
@@ -2188,15 +2177,23 @@
             showNotification('Success', 'New device credentials configured successfully!', 'success');
         }
 
-        function removeDevice(idx) {
+        function revokeDevice(idx) {
             if (idx === 0) {
-                showNotification('Error', 'Cannot remove Master Device.', 'error');
+                showNotification('Error', 'Cannot revoke Master Device.', 'error');
                 return;
             }
+            const revokedUser = state.users[idx].username;
             state.users.splice(idx, 1);
             saveData();
             renderDeviceList();
-            showNotification('Removed', 'Device access revoked successfully.', 'success');
+            
+            // If the revoked user is currently logged in anywhere or on this session, log out immediately
+            if (state.currentUser === revokedUser) {
+                handleLogout();
+                showNotification('Session Revoked', 'Your device session has been revoked by the administrator.', 'error');
+            } else {
+                showNotification('Revoked', 'Device access revoked successfully.', 'success');
+            }
         }
 
         function escapeHtml(str) {
