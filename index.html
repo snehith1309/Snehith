@@ -22,7 +22,17 @@
         input[type="date"]::-webkit-calendar-picker-indicator {
             cursor: pointer;
         }
+        .print-report-title,
+        .print-report-meta {
+            display: none;
+        }
+
         @media print {
+            @page {
+                size: landscape;
+                /* Remove space reserved for browser-generated date/title and URL/page number. */
+                margin: 0;
+            }
             body * {
                 visibility: hidden;
             }
@@ -34,11 +44,71 @@
                 left: 0;
                 top: 0;
                 width: 100%;
+                box-sizing: border-box;
+                padding: 10mm;
                 background: white !important;
                 color: black !important;
             }
             .no-print {
                 display: none !important;
+            }
+
+            /* Hide the on-screen "Inventory Records & Reports" header and its bottom border in the PDF.
+               Keep the separate print-report title and the report table visible. */
+            #recordsView > header {
+                display: none !important;
+                border: 0 !important;
+            }
+
+            .print-report-title {
+                display: block !important;
+                visibility: visible !important;
+                width: 100%;
+                margin: 0 0 8px 0;
+                padding: 12px 10px;
+                color: #ffffff !important;
+                background: #17365d !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-size: 22pt !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.5px;
+                text-align: center !important;
+                border: 2px solid #17365d;
+                border-radius: 6px;
+            }
+            .print-report-meta {
+                display: block !important;
+                visibility: visible !important;
+                margin: 0 0 16px 0;
+                padding: 10px 14px;
+                background: #eff6ff !important;
+                color: #1e293b !important;
+                border-left: 5px solid #2563eb;
+                border-bottom: 1px solid #bfdbfe;
+                font-size: 10pt !important;
+                line-height: 1.7;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-report-meta .print-meta-filter {
+                color: #1d4ed8 !important;
+                font-weight: 700 !important;
+            }
+            .print-report-meta .print-meta-date {
+                color: #047857 !important;
+                font-weight: 700 !important;
+            }
+            #recordsView table {
+                width: 100% !important;
+                font-size: 9pt !important;
+                border-collapse: collapse !important;
+            }
+            #recordsView th, #recordsView td {
+                padding: 6px 4px !important;
+                border: 1px solid #cbd5e1 !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
             }
         }
     </style>
@@ -55,7 +125,7 @@
                     <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border border-indigo-500/30 p-0 shadow-inner">
                         <img src="https://download.logo.wine/logo/Hero_MotoCorp/Hero_MotoCorp-Logo.wine.png" alt="Viswa Sai Hero Logo" class="w-full h-full object-contain">
                     </div>
-                    <h1 id="authTitle" class="text-2xl font-bold tracking-tight text-white">Viswa Sai Hero Inventory Management</h1>
+                    <h1 id="authTitle" class="text-2xl font-bold tracking-tight text-white">Viswasai Hero Inventory Management</h1>
                     <p class="text-xs text-slate-400">Secure Stock Manager</p>
                 </div>
 
@@ -128,8 +198,8 @@
                         <div class="absolute top-4 right-4 w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition">
                             <i class="fa-solid fa-boxes-stacked text-xl"></i>
                         </div>
-                        <h3 class="theme-text-main text-lg font-bold text-white mb-1">View Available Stock</h3>
-                        <p class="text-xs text-slate-400 mb-6">Manage current inventory, add new vehicle entries, filter specifications, and mark vehicles as sold.</p>
+                        <h3 class="theme-text-main text-lg font-bold text-white mb-2 pt-1">View Available Stock</h3>
+                        <p class="text-xs text-slate-400 mb-6 leading-relaxed">Manage current inventory, add new vehicle entries, filter specifications, and mark vehicles as sold.</p>
                         <div class="flex items-center justify-between text-xs font-semibold text-indigo-400 group-hover:text-indigo-300">
                             <span id="availableStockCountBadge">0 Items Available</span>
                             <i class="fa-solid fa-arrow-right transition transform group-hover:translate-x-1"></i>
@@ -141,8 +211,8 @@
                         <div class="absolute top-4 right-4 w-12 h-12 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
                             <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
                         </div>
-                        <h3 class="theme-text-main text-lg font-bold text-white mb-1">View Sold Stock</h3>
-                        <p class="text-xs text-slate-400 mb-6">Review records of all sold vehicles, buyer details, payment modes, and financial breakdowns.</p>
+                        <h3 class="theme-text-main text-lg font-bold text-white mb-2 pt-1">View Sold Stock</h3>
+                        <p class="text-xs text-slate-400 mb-6 leading-relaxed">Review records of all sold vehicles, buyer details, payment modes, and financial breakdowns.</p>
                         <div class="flex items-center justify-between text-xs font-semibold text-emerald-400 group-hover:text-emerald-300">
                             <span id="soldStockCountBadge">0 Items Sold</span>
                             <i class="fa-solid fa-arrow-right transition transform group-hover:translate-x-1"></i>
@@ -154,8 +224,8 @@
                         <div class="absolute top-4 right-4 w-12 h-12 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition">
                             <i class="fa-solid fa-chart-pie text-xl"></i>
                         </div>
-                        <h3 class="theme-text-main text-lg font-bold text-white mb-1">View Records</h3>
-                        <p class="text-xs text-slate-400 mb-6">Generate advanced incoming, outgoing, and holding reports by Daily, Weekly, Monthly, Yearly, or Calendar range.</p>
+                        <h3 class="theme-text-main text-lg font-bold text-white mb-2 pt-1">View Records</h3>
+                        <p class="text-xs text-slate-400 mb-6 leading-relaxed">Generate advanced incoming, outgoing, and holding reports by Daily, Weekly, Monthly, Yearly, or Calendar range.</p>
                         <div class="flex items-center justify-between text-xs font-semibold text-amber-400 group-hover:text-amber-300">
                             <span>Analyze Reports</span>
                             <i class="fa-solid fa-arrow-right transition transform group-hover:translate-x-1"></i>
@@ -166,7 +236,7 @@
 
             <!-- Footer -->
             <footer class="theme-footer bg-slate-900 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 space-y-1">
-                <p><span class="font-semibold text-slate-300">Address:</span> Viswa Sai Agencies, Shiridi Sai Nagar, Gudur, 524101</p>
+                <p><span class="font-semibold text-slate-300">Address:</span> Viswasai Agencies, Shiridi Sai Nagar, Gudur, 524101</p>
                 <p><span class="font-semibold text-slate-300">Contact Details:</span> +91 9515471545 | kurapatisnehith@gmail.com</p>
                 <p class="text-indigo-400 font-medium">Developed and maintained by Snehith Kumar Kurapati</p>
             </footer>
@@ -316,7 +386,7 @@
                             <option value="all">All Time</option>
                             <option value="daily">Daily (Today)</option>
                             <option value="weekly">Weekly (Sun-Sat)</option>
-                            <option value="monthly">Monthly (Calendar)</option>
+                            <option value="monthly">Monthly</option>
                             <option value="yearly">Yearly (1990-2099)</option>
                             <option value="manual">Custom Dates</option>
                         </select>
@@ -366,12 +436,16 @@
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
-                                    <th class="p-4">Model</th>
-                                    <th class="p-4">Engine / Frame No.</th>
-                                    <th class="p-4">Sold To</th>
-                                    <th class="p-4">Payment Mode</th>
-                                    <th class="p-4">Sold Date</th>
-                                    <th class="p-4">Finance Provider / Ref ID</th>
+                                    <th class="p-4">STOCK STATUS</th>
+                                    <th class="p-4">ENTRY DATE</th>
+                                    <th class="p-4">MODEL</th>
+                                    <th class="p-4">COLOUR</th>
+                                    <th class="p-4">ENGINE NUMBER</th>
+                                    <th class="p-4">FRAME NUMBER</th>
+                                    <th class="p-4">SOLD DATE</th>
+                                    <th class="p-4">SOLD TO</th>
+                                    <th class="p-4">MODE OF PAYMENT</th>
+                                    <th class="p-4">REFERENCE ID</th>
                                     <th class="p-4 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -390,6 +464,11 @@
 
         <!-- ================= RECORDS & REPORTING VIEW ================= -->
         <div id="recordsView" class="hidden flex-1 flex flex-col">
+            <h1 class="print-report-title">Viswasai Hero Inventory Report</h1>
+            <div class="print-report-meta">
+                <div class="print-meta-filter" id="printReportFilterSummary">Selected Timeframe: All Time | Selected Status Filter: All (Sold &amp; Available)</div>
+                <div class="print-meta-date" id="printReportDownloadedAt">Downloaded Date and Time: —</div>
+            </div>
             <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <button onclick="returnHome()" class="theme-btn-sec p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition no-print">
@@ -399,7 +478,7 @@
                 </div>
                 <!-- Export Buttons for Excel & PDF -->
                 <div class="flex items-center space-x-2 no-print">
-                    <button onclick="exportReportToExcel()" class="px-3 py-2 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Export Filtered Report to Excel (CSV)">
+                    <button onclick="exportReportToExcel()" class="px-3 py-2 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Export Filtered Report to Excel (.xls)">
                         <i class="fa-solid fa-file-excel"></i>
                         <span>Export Excel</span>
                     </button>
@@ -419,19 +498,19 @@
                             <option value="all">All Time</option>
                             <option value="daily">Daily (Today)</option>
                             <option value="weekly">Weekly (Sun-Sat)</option>
-                            <option value="monthly">Monthly (Calendar)</option>
+                            <option value="monthly">Monthly</option>
                             <option value="yearly">Yearly (1990-2099)</option>
                             <option value="manual">Custom Dates</option>
                         </select>
                     </div>
 
-                    <!-- NEW STATUS / FLOW FILTER -->
+                    <!-- NEW STATUS FILTER -->
                     <div class="space-y-1">
-                        <label class="text-[10px] uppercase font-bold text-slate-400">Status / Flow Filter</label>
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Status Filter</label>
                         <select id="filterReportStatus" onchange="generateReport()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="">-- All (Sold & Available) --</option>
-                            <option value="Sold">1. Sold</option>
-                            <option value="Available">2. Available</option>
+                            <option value="Sold">Sold</option>
+                            <option value="Available">Available</option>
                         </select>
                     </div>
 
@@ -475,7 +554,7 @@
                 </div>
 
                 <!-- Report Summary Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
                     <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
                         <p class="text-xs font-medium text-slate-400">Incoming Stock (In Period)</p>
                         <h3 class="text-2xl font-bold text-indigo-400 mt-1" id="reportIncomingCount">0</h3>
@@ -492,7 +571,7 @@
 
                 <!-- Neat Report Table -->
                 <div class="theme-card bg-slate-800/90 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
-                    <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+                    <div class="p-4 border-b border-slate-700 flex justify-between items-center no-print">
                         <h3 class="theme-text-main font-semibold text-sm text-white" id="reportTableTitle">Detailed Report Log</h3>
                         <span class="text-xs text-slate-400" id="reportTimestamp">Current Period</span>
                     </div>
@@ -500,16 +579,16 @@
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
-                                    <th class="p-4">Status / Flow</th>
-                                    <th class="p-4">Model</th>
-                                    <th class="p-4">Engine Number</th>
-                                    <th class="p-4">Frame Number</th>
-                                    <th class="p-4">Colour</th>
-                                    <th class="p-4">Entry Date</th>
-                                    <th class="p-4">Sold To</th>
-                                    <th class="p-4">Mode of Payment</th>
-                                    <th class="p-4">Reference ID</th>
-                                    <th class="p-4">Date of Sale</th>
+                                    <th class="p-4">STOCK STATUS</th>
+                                    <th class="p-4">ENTRY DATE</th>
+                                    <th class="p-4">MODEL</th>
+                                    <th class="p-4">COLOUR</th>
+                                    <th class="p-4">ENGINE NUMBER</th>
+                                    <th class="p-4">FRAME NUMBER</th>
+                                    <th class="p-4">SOLD DATE</th>
+                                    <th class="p-4">SOLD TO</th>
+                                    <th class="p-4">MODE OF PAYMENT</th>
+                                    <th class="p-4">REFERENCE ID</th>
                                 </tr>
                             </thead>
                             <tbody id="reportTableBody" class="divide-y divide-slate-700/60">
@@ -655,7 +734,7 @@
                                 </select>
                             </div>
                             <div class="space-y-1">
-                                <label class="font-medium text-slate-300">Date of Sale</label>
+                                <label class="font-medium text-slate-300">SOLD DATE</label>
                                 <input type="date" id="soldDateInput" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
                             </div>
                         </div>
@@ -933,6 +1012,16 @@
                             if (cloudData.modelsList) state.modelsList = cloudData.modelsList;
                             if (cloudData.coloursList) state.coloursList = cloudData.coloursList;
                             
+                            // Check if current logged-in user still exists in updated user accounts list
+                            if (state.currentUser) {
+                                const userStillExists = state.users.find(u => u.username === state.currentUser);
+                                if (!userStillExists) {
+                                    handleLogout();
+                                    showNotification('Session Revoked', 'Your device session has been revoked by the administrator.', 'error');
+                                    return;
+                                }
+                            }
+
                             populateDropdowns();
                             updateDashboardBadges();
                             if (!document.getElementById('availableStockView').classList.contains('hidden')) renderAvailableStock();
@@ -1364,15 +1453,17 @@
                         <td class="p-4 theme-text-sub text-slate-400 capitalize">${escapeHtml(item.colour)}</td>
                         <td class="p-4 theme-text-sub text-slate-400">${escapeHtml(item.date)}</td>
                         <td class="p-4 theme-text-sub text-slate-400 italic">${escapeHtml(item.remarks || 'None')}</td>
-                        <td class="p-4 text-right space-x-1">
-                            <button onclick="event.stopPropagation(); openEditModal('${item.id}')" class="px-2.5 py-1 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="Edit Entry">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Edit</span>
-                            </button>
-                            <button onclick="event.stopPropagation(); deleteEntry('${item.id}')" class="px-2.5 py-1 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="Delete Entry">
-                                <i class="fa-solid fa-trash"></i>
-                                <span>Delete</span>
-                            </button>
+                        <td class="p-4 text-right">
+                            <div class="inline-flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1.5">
+                                <button onclick="event.stopPropagation(); openEditModal('${item.id}')" class="px-2.5 py-1.5 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Edit Entry">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteEntry('${item.id}')" class="px-2.5 py-1.5 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Delete Entry">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <span>Delete</span>
+                                </button>
+                            </div>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1744,24 +1835,30 @@
                     const namePart = item.name ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(item.name)}</span>` : '';
 
                     tr.innerHTML = `
+                        <td class="p-4 text-emerald-400 font-semibold">Sold</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.date)}</td>
                         <td class="p-4 font-semibold theme-text-main">
                             ${namePart}
-                            <span class="text-xs font-bold text-emerald-500">${escapeHtml(item.model || 'N/A')}</span>
+                            <span class="text-xs font-bold text-indigo-500">${escapeHtml(item.model || 'N/A')}</span>
                         </td>
-                        <td class="p-4 text-slate-400 font-mono">Eng: ${escapeHtml(item.engine)}<br>Frm: ${escapeHtml(item.frame)}</td>
+                        <td class="p-4 text-slate-400 capitalize">${escapeHtml(item.colour)}</td>
+                        <td class="p-4 text-slate-400 font-mono">${escapeHtml(item.engine)}</td>
+                        <td class="p-4 text-slate-400 font-mono">${escapeHtml(item.frame)}</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.soldDate)}</td>
                         <td class="p-4 text-slate-400 font-medium">${soldToDisplay}</td>
                         <td class="p-4 text-slate-400">${escapeHtml(item.soldData.paymentMode)}</td>
-                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.soldDate)}</td>
-                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.financeProvider)}</td>
-                        <td class="p-4 text-right space-x-1">
-                            <button onclick="event.stopPropagation(); openSoldDetailModal('${item.id}')" class="px-2.5 py-1 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="View Info">
-                                <i class="fa-solid fa-receipt"></i>
-                                <span>Info</span>
-                            </button>
-                            <button onclick="event.stopPropagation(); returnToAvailable('${item.id}')" class="px-2.5 py-1 bg-amber-600/25 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-[10px] font-semibold transition inline-flex items-center space-x-1" title="Return to Available Stock">
-                                <i class="fa-solid fa-rotate-left"></i>
-                                <span>Return</span>
-                            </button>
+                        <td class="p-4 text-slate-400 font-mono">${escapeHtml(item.soldData.financeProvider)}</td>
+                        <td class="p-4 text-right">
+                            <div class="inline-flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1.5">
+                                <button onclick="event.stopPropagation(); openSoldDetailModal('${item.id}')" class="px-2.5 py-1.5 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="View Info">
+                                    <i class="fa-solid fa-receipt"></i>
+                                    <span>Info</span>
+                                </button>
+                                <button onclick="event.stopPropagation(); returnToAvailable('${item.id}')" class="px-2.5 py-1.5 bg-amber-600/25 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Return to Available Stock">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                    <span>Return</span>
+                                </button>
+                            </div>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1804,7 +1901,7 @@
                     ${adPointRow}
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Mode of Payment:</span><span class="text-slate-200">${escapeHtml(item.soldData.paymentMode)}</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">${extraLabel}:</span><span class="text-slate-200">${escapeHtml(item.soldData.financeProvider)}</span></div>
-                    <div class="flex justify-between pb-2"><span class="text-slate-400">Date of Sale:</span><span class="text-slate-200">${escapeHtml(item.soldData.soldDate)}</span></div>
+                    <div class="flex justify-between pb-2"><span class="text-slate-400">SOLD DATE:</span><span class="text-slate-200">${escapeHtml(item.soldData.soldDate)}</span></div>
                 </div>
             `;
             document.getElementById('soldDetailModal').classList.remove('hidden');
@@ -1921,7 +2018,7 @@
                 if (include) {
                     const soldToVal = item.isSold && item.soldData ? (item.soldData.soldTo + (item.soldData.adPointRegion ? ' (' + item.soldData.adPointRegion + ')' : '')) : 'N/A';
                     reportRows.push({
-                        status: item.isSold ? 'Outgoing (Sold)' : 'Available Stock',
+                        status: item.isSold ? 'Sold' : 'Available',
                         name: item.name || 'N/A',
                         model: item.model || 'N/A',
                         engine: item.engine,
@@ -1969,18 +2066,18 @@
                 const namePart = r.name && r.name !== 'N/A' ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(r.name)}</span>` : '';
                 tr.innerHTML = `
                     <td class="p-4 ${statusColor}">${escapeHtml(r.status)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.entryDate)}</td>
                     <td class="p-4 font-semibold theme-text-main">
                         ${namePart}
                         <span class="text-xs font-bold text-indigo-500">${escapeHtml(r.model)}</span>
                     </td>
+                    <td class="p-4 text-slate-400 capitalize">${escapeHtml(r.colour)}</td>
                     <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.engine)}</td>
                     <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.frame)}</td>
-                    <td class="p-4 text-slate-400 capitalize">${escapeHtml(r.colour)}</td>
-                    <td class="p-4 text-slate-400">${escapeHtml(r.entryDate)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.actionDate)}</td>
                     <td class="p-4 text-slate-400 font-medium">${escapeHtml(r.soldTo)}</td>
                     <td class="p-4 text-slate-400">${escapeHtml(r.paymentMode)}</td>
                     <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.referenceId)}</td>
-                    <td class="p-4 text-slate-400">${escapeHtml(r.actionDate)}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1993,22 +2090,88 @@
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Status,Model,Engine Number,Frame Number,Colour,Entry Date,Sold To,Mode of Payment,Reference ID,Date of Sale\r\n";
+            const timeframe = document.getElementById('reportTimeframe').value.toUpperCase();
+            const statusFilterVal = document.getElementById('filterReportStatus').value || 'All (Sold & Available)';
+            const downloadTime = new Date().toLocaleString();
 
+            let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">`;
+            html += `<head><meta charset="utf-8"/><style>
+                table { border-collapse: collapse; font-family: 'Inter', Arial, sans-serif; font-size: 10pt; }
+                th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
+                .title-row { background-color: #1e3a8a; color: #ffffff; font-weight: bold; font-size: 13pt; text-align: center; }
+                .sub-title-row { background-color: #3b82f6; color: #ffffff; font-weight: bold; font-size: 10pt; text-align: center; }
+                .info-row { background-color: #475569; color: #ffffff; font-size: 9pt; text-align: center; }
+                .header-row th { background-color: #0f172a; color: #ffffff; font-weight: bold; text-align: center; }
+                .text-sold { color: #047857; font-weight: bold; }
+                .text-avail { color: #4338ca; font-weight: bold; }
+            </style></head><body>`;
+            html += `<table>`;
+            
+            // Explicitly lock columns A through J (10 columns) and prevent Excel from stretching rows past column J
+            html += `<colgroup>
+                <col style="width: 100px;">
+                <col style="width: 110px;">
+                <col style="width: 140px;">
+                <col style="width: 100px;">
+                <col style="width: 140px;">
+                <col style="width: 140px;">
+                <col style="width: 110px;">
+                <col style="width: 140px;">
+                <col style="width: 130px;">
+                <col style="width: 140px;">
+            </colgroup>`;
+
+            // Row 1: Title
+            html += `<tr><td colspan="10" class="title-row">Viswasai Hero Inventory Report</td></tr>`;
+            // Row 2: Timeframe & Status Filter
+            html += `<tr><td colspan="10" class="sub-title-row">Timeframe: ${timeframe} | Status Filter: ${statusFilterVal}</td></tr>`;
+            // Row 3: Download Time
+            html += `<tr><td colspan="10" class="info-row">Downloaded On: ${downloadTime}</td></tr>`;
+            // Row 4: Blank Spacer
+            html += `<tr><td colspan="10" style="border:none; height:8px;"></td></tr>`;
+            // Row 5: Column Headers
+            html += `<tr class="header-row">
+                <th>STOCK STATUS</th>
+                <th>ENTRY DATE</th>
+                <th>MODEL</th>
+                <th>COLOUR</th>
+                <th>ENGINE NUMBER</th>
+                <th>FRAME NUMBER</th>
+                <th>SOLD DATE</th>
+                <th>SOLD TO</th>
+                <th>MODE OF PAYMENT</th>
+                <th>REFERENCE ID</th>
+            </tr>`;
+
+            // Data Rows
             rows.forEach(r => {
-                let row = `"${r.status}","${r.model}","${r.engine}","${r.frame}","${r.colour}","${r.entryDate}","${r.soldTo}","${r.paymentMode}","${r.referenceId}","${r.actionDate}"`;
-                csvContent += row + "\r\n";
+                const statusClass = r.status.includes('Sold') ? 'text-sold' : 'text-avail';
+                html += `<tr>
+                    <td class="${statusClass}">${r.status}</td>
+                    <td>${r.entryDate}</td>
+                    <td>${r.model}</td>
+                    <td>${r.colour}</td>
+                    <td>${r.engine}</td>
+                    <td>${r.frame}</td>
+                    <td>${r.actionDate}</td>
+                    <td>${r.soldTo}</td>
+                    <td>${r.paymentMode}</td>
+                    <td>${r.referenceId}</td>
+                </tr>`;
             });
 
-            const encodedUri = encodeURI(csvContent);
+            html += `</table></body></html>`;
+
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Inventory_Report_${document.getElementById('reportTimeframe').value}_${new Date().toISOString().slice(0,10)}.csv`);
+            link.href = url;
+            link.download = `Inventory_Report_${document.getElementById('reportTimeframe').value}_${new Date().toISOString().slice(0,10)}.xls`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showNotification('Success', 'Report successfully exported to Excel (CSV)!', 'success');
+            URL.revokeObjectURL(url);
+            showNotification('Success', 'Report successfully exported to Excel (.xls)!', 'success');
         }
 
         function exportReportToPDF() {
@@ -2017,6 +2180,38 @@
                 showNotification('Export Failed', 'No records found for the selected timeframe to export.', 'error');
                 return;
             }
+
+            // Update PDF-only report details immediately before opening the existing print/export flow.
+            const timeframeSelect = document.getElementById('reportTimeframe');
+            const timeframeValue = timeframeSelect.value;
+            const timeframeLabels = {
+                all: 'All Time',
+                daily: 'Daily (Today)',
+                weekly: 'Weekly (Sun-Sat)',
+                monthly: 'Monthly',
+                yearly: 'Yearly',
+                manual: 'Custom Dates'
+            };
+            let selectedTimeframe = timeframeLabels[timeframeValue] || timeframeValue;
+
+            if (timeframeValue === 'monthly') {
+                const monthSelect = document.getElementById('filterReportMonth');
+                selectedTimeframe += ` — ${monthSelect.options[monthSelect.selectedIndex].text} ${new Date().getFullYear()}`;
+            } else if (timeframeValue === 'yearly') {
+                selectedTimeframe += ` — ${document.getElementById('filterReportYear').value}`;
+            } else if (timeframeValue === 'manual') {
+                const fromDate = document.getElementById('filterReportFromDate').value || 'Any';
+                const toDate = document.getElementById('filterReportToDate').value || 'Any';
+                selectedTimeframe += ` — ${fromDate} to ${toDate}`;
+            }
+
+            const statusSelect = document.getElementById('filterReportStatus');
+            const selectedStatus = statusSelect.value || 'All (Sold & Available)';
+            document.getElementById('printReportFilterSummary').textContent =
+                `Selected Timeframe: ${selectedTimeframe} | Selected Status Filter: ${selectedStatus}`;
+            document.getElementById('printReportDownloadedAt').textContent =
+                `Downloaded Date and Time: ${new Date().toLocaleString()}`;
+
             window.print();
         }
 
@@ -2135,16 +2330,29 @@
             container.innerHTML = '';
             document.getElementById('deviceCountLabel').innerText = state.users.length;
 
+            const isMasterUser = state.currentUser === state.users[0].username;
+
             state.users.forEach((usr, idx) => {
                 const div = document.createElement('div');
                 div.className = 'theme-subcard flex items-center justify-between p-3 bg-slate-950 border border-slate-700 rounded-xl';
                 
+                let actionBtnHtml = '';
+                if (idx > 0) {
+                    if (isMasterUser) {
+                        actionBtnHtml = `<button type="button" onclick="revokeDevice(${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-900/50 rounded cursor-pointer"><i class="fa-solid fa-ban mr-1"></i> Revoke</button>`;
+                    } else {
+                        actionBtnHtml = `<span class="text-[10px] text-slate-500 italic">Restricted</span>`;
+                    }
+                } else {
+                    actionBtnHtml = '<span class="text-[10px] bg-indigo-600/25 text-indigo-400 px-2 py-0.5 rounded">MASTER</span>';
+                }
+
                 div.innerHTML = `
                     <div>
                         <p class="font-bold theme-text-main text-white text-xs">${escapeHtml(usr.deviceName || `Device ${idx+1}`)}</p>
                         <p class="text-[10px] text-slate-400 font-mono">Username: ${escapeHtml(usr.username)}</p>
                     </div>
-                    ${idx > 0 ? `<button type="button" onclick="revokeDevice(${idx})" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-900/50 rounded cursor-pointer"><i class="fa-solid fa-ban mr-1"></i> Revoke</button>` : '<span class="text-[10px] bg-indigo-600/25 text-indigo-400 px-2 py-0.5 rounded">MASTER</span>'}
+                    ${actionBtnHtml}
                 `;
                 container.appendChild(div);
             });
@@ -2178,6 +2386,11 @@
         }
 
         function revokeDevice(idx) {
+            // Verify that only the master device user (by username) can perform this action
+            if (state.currentUser !== state.users[0].username) {
+                showNotification('Access Denied', 'Only the master device can revoke access.', 'error');
+                return;
+            }
             if (idx === 0) {
                 showNotification('Error', 'Cannot revoke Master Device.', 'error');
                 return;
