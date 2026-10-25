@@ -28,88 +28,101 @@
         }
 
         @media print {
-            @page {
-                size: landscape;
-                /* Remove space reserved for browser-generated date/title and URL/page number. */
-                margin: 0;
+            @page { size: A4 landscape; margin: 0; }
+            html, body {
+                width: 100% !important; height: auto !important; min-height: 0 !important;
+                margin: 0 !important; padding: 0 !important; background: #fff !important;
+                color: #111827 !important; overflow: visible !important;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
-            body * {
-                visibility: hidden;
-            }
-            #recordsView, #recordsView * {
-                visibility: visible;
-            }
+            body { display: block !important; font-family: Arial, Helvetica, sans-serif !important; }
+            body * { visibility: hidden; }
+            #recordsView, #recordsView * { visibility: visible; }
             #recordsView {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                box-sizing: border-box;
-                padding: 10mm;
-                background: white !important;
-                color: black !important;
+                display: block !important; position: static !important; inset: auto !important;
+                width: 100% !important; max-width: none !important; margin: 0 !important;
+                padding: 7mm !important; overflow: visible !important; background: #fff !important;
+                color: #111827 !important; box-sizing: border-box !important;
             }
-            .no-print {
-                display: none !important;
+            /* Keep the border inside the printable area on every page. */
+            #recordsView::after {
+                content: ""; position: fixed; inset: 3mm;
+                border: 0.6pt solid #64748b; pointer-events: none; z-index: 9999;
             }
-
-            /* Hide the on-screen "Inventory Records & Reports" header and its bottom border in the PDF.
-               Keep the separate print-report title and the report table visible. */
-            #recordsView > header {
-                display: none !important;
-                border: 0 !important;
-            }
-
+            .no-print, #recordsView > header { display: none !important; }
             .print-report-title {
-                display: block !important;
-                visibility: visible !important;
-                width: 100%;
-                margin: 0 0 8px 0;
-                padding: 12px 10px;
-                color: #ffffff !important;
-                background: #17365d !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                font-size: 22pt !important;
-                font-weight: 800 !important;
-                letter-spacing: 0.5px;
-                text-align: center !important;
-                border: 2px solid #17365d;
-                border-radius: 6px;
+                display: block !important; visibility: visible !important; box-sizing: border-box !important;
+                width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+                margin: 0 0 3mm 0 !important; padding: 4mm 2mm !important;
+                background: #17365d !important; color: #fff !important; border: 1pt solid #17365d !important;
+                border-radius: 2mm !important; text-align: center !important; font-size: 15pt !important;
+                line-height: 1.15 !important; font-weight: 700 !important; letter-spacing: .2pt !important;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+                break-after: avoid-page; page-break-after: avoid;
             }
             .print-report-meta {
-                display: block !important;
-                visibility: visible !important;
-                margin: 0 0 16px 0;
-                padding: 10px 14px;
-                background: #eff6ff !important;
-                color: #1e293b !important;
-                border-left: 5px solid #2563eb;
-                border-bottom: 1px solid #bfdbfe;
-                font-size: 10pt !important;
-                line-height: 1.7;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                display: block !important; visibility: visible !important; box-sizing: border-box !important;
+                width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+                margin: 0 0 4mm 0 !important; padding: 2.5mm 3mm !important;
+                background: #eff6ff !important; color: #1e293b !important;
+                border: .6pt solid #bfdbfe !important; border-left: 3pt solid #2563eb !important;
+                border-radius: 0 !important; font-size: 7pt !important; line-height: 1.3 !important; overflow-wrap: anywhere !important;
+                break-after: avoid-page; page-break-after: avoid;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
-            .print-report-meta .print-meta-filter {
-                color: #1d4ed8 !important;
-                font-weight: 700 !important;
+            .print-report-meta .print-meta-filter { color: #1d4ed8 !important; font-weight: 700 !important; }
+            .print-report-meta .print-meta-date { color: #047857 !important; font-weight: 700 !important; }
+            #recordsView .flex-1.max-w-7xl,
+            #recordsView .max-w-7xl,
+            #recordsView .theme-card {
+                width: 100% !important; max-width: none !important; margin: 0 !important;
+                padding: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+                background: #fff !important; border-color: transparent !important; overflow: visible !important;
             }
-            .print-report-meta .print-meta-date {
-                color: #047857 !important;
-                font-weight: 700 !important;
+            /* Keep the full report table safely inside the printable A4 area. */
+            #recordsView .overflow-x-auto,
+            #recordsView .overflow-auto,
+            #recordsView .overflow-hidden {
+                width: 100% !important; max-width: 100% !important;
+                min-width: 0 !important; overflow: visible !important;
             }
             #recordsView table {
-                width: 100% !important;
-                font-size: 9pt !important;
-                border-collapse: collapse !important;
+                display: table !important;
+                width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+                table-layout: auto !important; box-sizing: border-box !important;
+                border-collapse: collapse !important; border-spacing: 0 !important;
+                margin: 0 auto !important; padding: 0 !important;
+                font-size: 6.2pt !important; line-height: 1.15 !important;
+                page-break-inside: auto; break-inside: auto;
             }
+            #recordsView thead { display: table-header-group !important; }
+            #recordsView tfoot { display: table-footer-group !important; }
+            #recordsView tr { break-inside: avoid !important; page-break-inside: avoid !important; }
             #recordsView th, #recordsView td {
-                padding: 6px 4px !important;
-                border: 1px solid #cbd5e1 !important;
-                word-wrap: break-word !important;
-                white-space: normal !important;
+                box-sizing: border-box !important; padding: 1.1mm 0.7mm !important;
+                border: .5pt solid #b8c5d6 !important; color: #1f2937 !important;
+                vertical-align: middle !important; text-align: center !important; white-space: normal !important;
+                overflow-wrap: anywhere !important; word-break: normal !important;
+                background: #fff !important;
             }
+            /* Keep every value in every table cell the same print font size, including nested labels. */
+            #recordsView table td,
+            #recordsView table td * {
+                font-size: 6.2pt !important;
+                line-height: 1.15 !important;
+                text-align: center !important;
+                vertical-align: middle !important;
+                max-width: 100% !important;
+                overflow-wrap: anywhere !important;
+            }
+            #recordsView th {
+                background: #e8eef6 !important; color: #24364b !important;
+                font-size: 5.6pt !important; font-weight: 700 !important; text-transform: uppercase;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+            #recordsView a { color: #1f2937 !important; text-decoration: none !important; }
+            #recordsView button, #recordsView input, #recordsView select { display: none !important; }
+            #recordsView h1, #recordsView .print-report-meta { break-inside: avoid !important; page-break-inside: avoid !important; }
         }
     </style>
 </head>
@@ -336,6 +349,12 @@
                     </button>
                     <h2 class="theme-text-main font-bold text-lg text-white">Sold Stock Records</h2>
                 </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="deleteSelectedSold()" id="deleteSelectedSoldBtn" class="hidden px-3 py-2 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-semibold transition items-center space-x-1">
+                        <i class="fa-solid fa-trash"></i>
+                        <span>Delete Selected</span>
+                    </button>
+                </div>
             </header>
 
             <div class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
@@ -366,9 +385,13 @@
                         <select id="filterSoldTo" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
                             <option value="">-- Select Buyer --</option>
                             <option value="Customer">Customer</option>
-                            <option value="Partner">Partner</option>
+                            <option value="AD Point">AD Point</option>
                             <option value="Other">Other</option>
                         </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Customer Area</label>
+                        <input type="text" id="filterSoldCustomerArea" oninput="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Customer Area...">
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] uppercase font-bold text-slate-400">Payment Mode</label>
@@ -436,14 +459,19 @@
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="p-4 w-10"><input type="checkbox" id="selectAllSold" onchange="toggleSelectAllSold(this)" class="w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500 cursor-pointer" title="Select all sold entries"></th>
                                     <th class="p-4">STOCK STATUS</th>
-                                    <th class="p-4">ENTRY DATE</th>
+                                    <th class="px-2 py-4 whitespace-nowrap">ENTRY DATE</th>
                                     <th class="p-4">MODEL</th>
                                     <th class="p-4">COLOUR</th>
                                     <th class="p-4">ENGINE NUMBER</th>
                                     <th class="p-4">FRAME NUMBER</th>
-                                    <th class="p-4">SOLD DATE</th>
+                                    <th class="px-2 py-4 whitespace-nowrap">SOLD DATE</th>
                                     <th class="p-4">SOLD TO</th>
+                                    <th class="p-4">CUSTOMER NAME</th>
+                                    <th class="p-4">PHONE NUMBER</th>
+                                    <th class="p-4">CUSTOMER AREA</th>
+                                    <th class="p-4">SELLING PRICE</th>
                                     <th class="p-4">MODE OF PAYMENT</th>
                                     <th class="p-4">REFERENCE ID</th>
                                     <th class="p-4 text-right">Actions</th>
@@ -502,6 +530,11 @@
                             <option value="yearly">Yearly (1990-2099)</option>
                             <option value="manual">Custom Dates</option>
                         </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Customer Area</label>
+                        <input type="text" id="filterReportCustomerArea" oninput="generateReport()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Customer Area...">
                     </div>
 
                     <!-- NEW STATUS FILTER -->
@@ -580,13 +613,17 @@
                             <thead>
                                 <tr class="theme-table-header bg-slate-900/60 border-b border-slate-700 text-slate-400 uppercase text-[10px] tracking-wider">
                                     <th class="p-4">STOCK STATUS</th>
-                                    <th class="p-4">ENTRY DATE</th>
+                                    <th class="px-2 py-4 whitespace-nowrap">ENTRY DATE</th>
                                     <th class="p-4">MODEL</th>
                                     <th class="p-4">COLOUR</th>
                                     <th class="p-4">ENGINE NUMBER</th>
                                     <th class="p-4">FRAME NUMBER</th>
-                                    <th class="p-4">SOLD DATE</th>
+                                    <th class="px-2 py-4 whitespace-nowrap">SOLD DATE</th>
                                     <th class="p-4">SOLD TO</th>
+                                    <th class="p-4">CUSTOMER NAME</th>
+                                    <th class="p-4">PHONE NUMBER</th>
+                                    <th class="p-4">CUSTOMER AREA</th>
+                                    <th class="p-4">SELLING PRICE</th>
                                     <th class="p-4">MODE OF PAYMENT</th>
                                     <th class="p-4">REFERENCE ID</th>
                                 </tr>
@@ -709,17 +746,43 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="space-y-1">
                                 <label class="font-medium text-slate-300">Sold To</label>
-                                <select id="soldTo" onchange="toggleAdPointField()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
+                                <select id="soldTo" onchange="toggleAdPointField(); toggleCustomerFields()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500">
                                     <option value="" disabled selected>-- Select Buyer --</option>
                                     <option value="Customer">Customer</option>
-                                    <option value="Partner">Partner</option>
+                                    <option value="AD Point">AD Point</option>
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
-                            <!-- AD Point / Region Field (Appears only when 'Partner' is selected) -->
+                            <!-- AD Point / Region Field (Appears only when 'AD Point' is selected) -->
                             <div id="adPointContainer" class="hidden space-y-1">
                                 <label class="font-medium text-slate-300">AD Point / Region</label>
                                 <input type="text" id="adPointRegion" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Enter region...">
+                            </div>
+                        </div>
+                        <!-- Customer Details (shown only when Sold To = Customer) -->
+                        <div id="customerFieldsContainer" class="hidden space-y-3 border-t border-slate-700 pt-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label for="customerName" class="font-medium text-slate-300">Customer Name</label>
+                                    <input type="text" id="customerName" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Enter customer name" autocomplete="name">
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="customerPhone" class="font-medium text-slate-300">Phone Number (+91)</label>
+                                    <input type="tel" id="customerPhone" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="+91" inputmode="numeric" pattern="[0-9]{10}" title="Optional: if entered, provide exactly 10 numeric digits (without +91)." maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label for="customerArea" class="font-medium text-slate-300">Customer Area</label>
+                                    <input type="text" id="customerArea" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Enter customer area">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Selling Price is available for every Sold To option -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label for="sellingPrice" class="font-medium text-slate-300">Selling Price (₹)</label>
+                                <input type="number" id="sellingPrice" min="0" step="0.01" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Enter selling price">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1454,7 +1517,7 @@
                         <td class="p-4 theme-text-sub text-slate-400">${escapeHtml(item.date)}</td>
                         <td class="p-4 theme-text-sub text-slate-400 italic">${escapeHtml(item.remarks || 'None')}</td>
                         <td class="p-4 text-right">
-                            <div class="inline-flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1.5">
+                            <div class="inline-flex flex-row flex-nowrap items-center justify-end gap-1.5 whitespace-nowrap">
                                 <button onclick="event.stopPropagation(); openEditModal('${item.id}')" class="px-2.5 py-1.5 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Edit Entry">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                     <span>Edit</span>
@@ -1599,6 +1662,15 @@
             document.getElementById('saleFieldsContainer').classList.add('hidden');
             document.getElementById('financeProviderBox').classList.add('hidden');
             document.getElementById('soldTo').value = '';
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerArea').value = '';
+            document.getElementById('sellingPrice').value = '';
+            document.getElementById('customerFieldsContainer').classList.add('hidden');
+            document.getElementById('customerName').required = false;
+            document.getElementById('customerPhone').required = false;
+            document.getElementById('customerArea').required = false;
+            document.getElementById('sellingPrice').required = false;
             document.getElementById('paymentMode').value = '';
             document.getElementById('financeProvider').value = '';
             document.getElementById('adPointRegion').value = '';
@@ -1625,11 +1697,29 @@
         function toggleAdPointField() {
             const soldToVal = document.getElementById('soldTo').value;
             const adContainer = document.getElementById('adPointContainer');
-            if (soldToVal === 'Partner') {
+            if (soldToVal === 'AD Point' || soldToVal === 'Partner') {
                 adContainer.classList.remove('hidden');
             } else {
                 adContainer.classList.add('hidden');
                 document.getElementById('adPointRegion').value = '';
+            }
+        }
+
+        function toggleCustomerFields() {
+            const isCustomer = document.getElementById('soldTo').value === 'Customer';
+            const container = document.getElementById('customerFieldsContainer');
+            container.classList.toggle('hidden', !isCustomer);
+            ['customerName', 'customerArea'].forEach(id => {
+                document.getElementById(id).required = isCustomer;
+            });
+            // Selling price is visible for every Sold To option. Keep it required for Customer,
+            // matching the existing Customer sale validation, but optional for other options.
+            document.getElementById('sellingPrice').required = isCustomer;
+            document.getElementById('customerPhone').required = false;
+            if (!isCustomer) {
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerPhone').value = '';
+                document.getElementById('customerArea').value = '';
             }
         }
 
@@ -1659,6 +1749,14 @@
             const item = state.inventory.find(i => i.id === id);
             if (!item) return;
 
+            const selectedBuyer = document.getElementById('soldTo').value;
+            const enteredPhone = document.getElementById('customerPhone').value.trim();
+            if (document.getElementById('markAsSoldCheck').checked && selectedBuyer === 'Customer' && enteredPhone && !/^\d{10}$/.test(enteredPhone)) {
+                showNotification('Invalid Phone Number', 'Enter exactly 10 numeric digits, or leave the phone field empty.', 'error');
+                document.getElementById('customerPhone').focus();
+                return;
+            }
+
             const rawEditDate = document.getElementById('editDate').value;
             const formattedEditDate = formatDateForComparison(rawEditDate);
 
@@ -1677,7 +1775,13 @@
                 const formattedSoldDate = formatDateForComparison(rawSoldDate);
 
                 const soldToVal = document.getElementById('soldTo').value;
-                const adRegionVal = soldToVal === 'Partner' ? document.getElementById('adPointRegion').value.trim() : '';
+                const adRegionVal = (soldToVal === 'AD Point' || soldToVal === 'Partner') ? document.getElementById('adPointRegion').value.trim() : '';
+                const customerDetails = soldToVal === 'Customer' ? {
+                    customerName: document.getElementById('customerName').value.trim(),
+                    customerPhone: document.getElementById('customerPhone').value.trim(),
+                    customerArea: document.getElementById('customerArea').value.trim()
+                } : { customerName: '', customerPhone: '', customerArea: '' };
+                const sellingPriceVal = document.getElementById('sellingPrice').value === '' ? '' : Number(document.getElementById('sellingPrice').value);
 
                 const mode = document.getElementById('paymentMode').value;
                 const extraVal = (mode === 'Finance' || mode === 'Bank Transfer' || mode === 'UPI') ? document.getElementById('financeProvider').value.trim() : 'N/A';
@@ -1685,6 +1789,8 @@
                 item.soldData = {
                     soldTo: soldToVal,
                     adPointRegion: adRegionVal,
+                    ...customerDetails,
+                    sellingPrice: sellingPriceVal,
                     paymentMode: mode,
                     financeProvider: extraVal,
                     soldDate: formattedSoldDate || `${new Date().getDate()}-${new Date().getMonth() + 1}-${new Date().getFullYear()}`,
@@ -1740,6 +1846,7 @@
             document.getElementById('filterSoldEngine').value = '';
             document.getElementById('filterSoldFrame').value = '';
             document.getElementById('filterSoldTo').value = '';
+            document.getElementById('filterSoldCustomerArea').value = '';
             document.getElementById('filterSoldPayment').value = '';
             document.getElementById('filterSoldTimeframe').value = 'all';
             document.getElementById('filterSoldFromDate').value = '';
@@ -1761,6 +1868,7 @@
             const fEng = document.getElementById('filterSoldEngine').value.toLowerCase();
             const fFrm = document.getElementById('filterSoldFrame').value.toLowerCase();
             const fSoldTo = document.getElementById('filterSoldTo').value;
+            const fCustomerArea = document.getElementById('filterSoldCustomerArea').value.trim().toLowerCase();
             const fPayment = document.getElementById('filterSoldPayment').value;
             const fTf = document.getElementById('filterSoldTimeframe').value;
             const fMonth = document.getElementById('filterSoldMonth').value;
@@ -1779,7 +1887,8 @@
                 if (fColour && item.colour !== fColour) return false;
                 if (fEng && !item.engine.toLowerCase().includes(fEng)) return false;
                 if (fFrm && !item.frame.toLowerCase().includes(fFrm)) return false;
-                if (fSoldTo && item.soldData.soldTo !== fSoldTo) return false;
+                if (fSoldTo && !((fSoldTo === 'AD Point' && (item.soldData.soldTo === 'AD Point' || item.soldData.soldTo === 'Partner')) || item.soldData.soldTo === fSoldTo)) return false;
+                if (fCustomerArea && !(item.soldData.customerArea || '').toLowerCase().includes(fCustomerArea)) return false;
                 if (fPayment && item.soldData.paymentMode !== fPayment) return false;
 
                 if (fTf !== 'all' && item.soldData.soldDate) {
@@ -1828,15 +1937,17 @@
                     tr.className = 'hover:bg-slate-700/40 cursor-pointer transition';
                     tr.onclick = () => openSoldDetailModal(item.id);
                     
-                    const soldToDisplay = item.soldData.soldTo === 'Partner' && item.soldData.adPointRegion 
-                        ? `${escapeHtml(item.soldData.soldTo)} <span class="text-[10px] text-indigo-400 block">(${escapeHtml(item.soldData.adPointRegion)})</span>` 
+                    const isAdPoint = item.soldData.soldTo === 'AD Point' || item.soldData.soldTo === 'Partner';
+                    const soldToDisplay = isAdPoint
+                        ? `<span class="block whitespace-nowrap">AD Point</span>${item.soldData.adPointRegion ? `<span class="block font-semibold text-indigo-500 whitespace-nowrap">${escapeHtml(item.soldData.adPointRegion)}</span>` : ''}`
                         : escapeHtml(item.soldData.soldTo);
 
                     const namePart = item.name ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(item.name)}</span>` : '';
 
                     tr.innerHTML = `
+                        <td class="p-4 w-10" onclick="event.stopPropagation()"><input type="checkbox" value="${item.id}" onchange="updateSelectedSoldCount()" class="sold-checkbox w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500 cursor-pointer" aria-label="Select sold vehicle"></td>
                         <td class="p-4 text-emerald-400 font-semibold">Sold</td>
-                        <td class="p-4 text-slate-400">${escapeHtml(item.date)}</td>
+                        <td class="px-2 py-4 text-slate-400 whitespace-nowrap">${escapeHtml(item.date)}</td>
                         <td class="p-4 font-semibold theme-text-main">
                             ${namePart}
                             <span class="text-xs font-bold text-indigo-500">${escapeHtml(item.model || 'N/A')}</span>
@@ -1844,25 +1955,80 @@
                         <td class="p-4 text-slate-400 capitalize">${escapeHtml(item.colour)}</td>
                         <td class="p-4 text-slate-400 font-mono">${escapeHtml(item.engine)}</td>
                         <td class="p-4 text-slate-400 font-mono">${escapeHtml(item.frame)}</td>
-                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.soldDate)}</td>
-                        <td class="p-4 text-slate-400 font-medium">${soldToDisplay}</td>
+                        <td class="px-2 py-4 text-slate-400 whitespace-nowrap">${escapeHtml(item.soldData.soldDate)}</td>
+                        <td class="p-4 text-slate-400 font-medium whitespace-nowrap">${soldToDisplay}</td>
+                        <td class="p-4 text-slate-300">${escapeHtml(item.soldData.customerName || '—')}</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.customerPhone || '—')}</td>
+                        <td class="p-4 text-slate-400">${escapeHtml(item.soldData.customerArea || '—')}</td>
+                        <td class="p-4 text-emerald-400 font-semibold">${item.soldData.sellingPrice !== '' && item.soldData.sellingPrice != null ? '₹' + Number(item.soldData.sellingPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '—'}</td>
                         <td class="p-4 text-slate-400">${escapeHtml(item.soldData.paymentMode)}</td>
                         <td class="p-4 text-slate-400 font-mono">${escapeHtml(item.soldData.financeProvider)}</td>
                         <td class="p-4 text-right">
-                            <div class="inline-flex flex-col sm:flex-row items-end sm:items-center justify-end gap-1.5">
-                                <button onclick="event.stopPropagation(); openSoldDetailModal('${item.id}')" class="px-2.5 py-1.5 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="View Info">
+                            <div class="inline-flex flex-row flex-nowrap items-center justify-end gap-1.5 whitespace-nowrap">
+                                <button onclick="event.stopPropagation(); openSoldDetailModal('${item.id}')" class="shrink-0 px-2.5 py-1.5 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="View Info">
                                     <i class="fa-solid fa-receipt"></i>
                                     <span>Info</span>
                                 </button>
-                                <button onclick="event.stopPropagation(); returnToAvailable('${item.id}')" class="px-2.5 py-1.5 bg-amber-600/25 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Return to Available Stock">
+                                <button onclick="event.stopPropagation(); returnToAvailable('${item.id}')" class="w-12.05 shrink-0 justify-center px-2.5 py-1.5 bg-amber-600/25 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Return to Available Stock">
                                     <i class="fa-solid fa-rotate-left"></i>
                                     <span>Return</span>
+                                </button>
+                                <button onclick="event.stopPropagation(); deleteSoldEntry('${item.id}')" class="w-12.05 shrink-0 justify-center px-2.5 py-1.5 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-lg text-xs font-semibold transition inline-flex items-center space-x-1" title="Delete Sold Entry">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <span>Delete</span>
                                 </button>
                             </div>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
+            }
+            updateSelectedSoldCount();
+        }
+
+        function toggleSelectAllSold(master) {
+            document.querySelectorAll('.sold-checkbox').forEach(cb => cb.checked = master.checked);
+            updateSelectedSoldCount();
+        }
+
+        function updateSelectedSoldCount() {
+            const checkboxes = document.querySelectorAll('.sold-checkbox:checked');
+            const deleteBtn = document.getElementById('deleteSelectedSoldBtn');
+            if (checkboxes.length > 0) {
+                deleteBtn.classList.remove('hidden');
+                deleteBtn.classList.add('inline-flex');
+            } else {
+                deleteBtn.classList.remove('inline-flex');
+                deleteBtn.classList.add('hidden');
+            }
+            const allCheckboxes = document.querySelectorAll('.sold-checkbox');
+            const masterCb = document.getElementById('selectAllSold');
+            if (masterCb) {
+                masterCb.checked = allCheckboxes.length > 0 && checkboxes.length === allCheckboxes.length;
+                masterCb.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
+            }
+        }
+
+        function deleteSelectedSold() {
+            const checkboxes = document.querySelectorAll('.sold-checkbox:checked');
+            if (checkboxes.length === 0) return;
+            if (confirm(`Are you sure you want to delete ${checkboxes.length} selected sold vehicle entry/entries? This cannot be undone.`)) {
+                const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
+                state.inventory = state.inventory.filter(item => !idsToDelete.includes(item.id));
+                saveData();
+                renderSoldStock();
+                updateDashboardBadges();
+                showNotification('Deleted', 'Selected sold vehicle entries removed successfully.', 'success');
+            }
+        }
+
+        function deleteSoldEntry(id) {
+            if (confirm('Are you sure you want to permanently delete this sold vehicle entry? This cannot be undone.')) {
+                state.inventory = state.inventory.filter(item => item.id !== id);
+                saveData();
+                renderSoldStock();
+                updateDashboardBadges();
+                showNotification('Deleted', 'Sold vehicle entry removed successfully.', 'success');
             }
         }
 
@@ -1886,8 +2052,16 @@
 
             const extraLabel = item.soldData.paymentMode === 'Finance' ? 'Finance Provider' : 'Reference ID';
             let adPointRow = '';
-            if (item.soldData.soldTo === 'Partner' && item.soldData.adPointRegion) {
+            if ((item.soldData.soldTo === 'AD Point' || item.soldData.soldTo === 'Partner') && item.soldData.adPointRegion) {
                 adPointRow = `<div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">AD Point / Region:</span><span class="font-semibold text-indigo-400">${escapeHtml(item.soldData.adPointRegion)}</span></div>`;
+            }
+            let customerDetailsRows = '';
+            if (item.soldData.soldTo === 'Customer') {
+                customerDetailsRows = `
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Customer Name:</span><span class="font-semibold text-slate-200">${escapeHtml(item.soldData.customerName || 'N/A')}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Phone Number:</span><span class="text-slate-200">${escapeHtml(item.soldData.customerPhone || 'N/A')}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Customer Area:</span><span class="text-slate-200">${escapeHtml(item.soldData.customerArea || 'N/A')}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Selling Price:</span><span class="font-semibold text-emerald-400">${item.soldData.sellingPrice !== '' && item.soldData.sellingPrice != null ? '₹' + Number(item.soldData.sellingPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : 'N/A'}</span></div>`;
             }
 
             const content = document.getElementById('soldDetailContent');
@@ -1897,8 +2071,9 @@
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Engine Number:</span><span class="font-mono text-slate-200">${escapeHtml(item.engine)}</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Frame Number:</span><span class="font-mono text-slate-200">${escapeHtml(item.frame)}</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Colour & Entry Date:</span><span class="text-slate-200 capitalize">${escapeHtml(item.colour)} (${escapeHtml(item.date)})</span></div>
-                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Sold To:</span><span class="font-bold text-emerald-400">${escapeHtml(item.soldData.soldTo)}</span></div>
+                    <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Sold To:</span><span class="font-bold text-emerald-400">${escapeHtml((item.soldData.soldTo === 'Partner' || item.soldData.soldTo === 'AD Point') ? 'AD Point' : item.soldData.soldTo)}</span></div>
                     ${adPointRow}
+                    ${customerDetailsRows}
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">Mode of Payment:</span><span class="text-slate-200">${escapeHtml(item.soldData.paymentMode)}</span></div>
                     <div class="flex justify-between border-b border-slate-700 pb-2"><span class="text-slate-400">${extraLabel}:</span><span class="text-slate-200">${escapeHtml(item.soldData.financeProvider)}</span></div>
                     <div class="flex justify-between pb-2"><span class="text-slate-400">SOLD DATE:</span><span class="text-slate-200">${escapeHtml(item.soldData.soldDate)}</span></div>
@@ -1950,6 +2125,7 @@
         function resetReportFilters() {
             document.getElementById('reportTimeframe').value = 'all';
             document.getElementById('filterReportStatus').value = '';
+            document.getElementById('filterReportCustomerArea').value = '';
             document.getElementById('filterReportFromDate').value = '';
             document.getElementById('filterReportToDate').value = '';
             document.getElementById('reportMonthBox').classList.add('hidden');
@@ -1961,6 +2137,7 @@
         function getFilteredReportItems() {
             const tf = document.getElementById('reportTimeframe').value;
             const statusFilter = document.getElementById('filterReportStatus').value;
+            const fCustomerArea = document.getElementById('filterReportCustomerArea').value.trim().toLowerCase();
             const fMonth = document.getElementById('filterReportMonth').value;
             const fYear = document.getElementById('filterReportYear').value;
             const rawFromDate = document.getElementById('filterReportFromDate').value;
@@ -1978,6 +2155,9 @@
                 if (statusFilter && statusStr !== statusFilter) {
                     include = false;
                 }
+
+                const soldData = item.isSold && item.soldData ? item.soldData : {};
+                if (fCustomerArea && !(soldData.customerArea || '').toLowerCase().includes(fCustomerArea)) include = false;
 
                 if (include) {
                     const parts = item.date.split('-');
@@ -2016,7 +2196,8 @@
                 }
 
                 if (include) {
-                    const soldToVal = item.isSold && item.soldData ? (item.soldData.soldTo + (item.soldData.adPointRegion ? ' (' + item.soldData.adPointRegion + ')' : '')) : 'N/A';
+                    const soldToBase = item.isSold && item.soldData ? ((item.soldData.soldTo === 'Partner' || item.soldData.soldTo === 'AD Point') ? 'AD Point' : item.soldData.soldTo) : 'N/A';
+                    const soldToVal = item.isSold && item.soldData ? (soldToBase + (item.soldData.adPointRegion ? ' (' + item.soldData.adPointRegion + ')' : '')) : 'N/A';
                     reportRows.push({
                         status: item.isSold ? 'Sold' : 'Available',
                         name: item.name || 'N/A',
@@ -2026,6 +2207,13 @@
                         colour: item.colour || 'N/A',
                         entryDate: item.date,
                         soldTo: soldToVal,
+                        soldToBase: soldToBase,
+                        adPointRegion: item.isSold && item.soldData ? (item.soldData.adPointRegion || '') : '',
+                        isAdPoint: item.isSold && item.soldData ? (item.soldData.soldTo === 'Partner' || item.soldData.soldTo === 'AD Point') : false,
+                        customerName: item.isSold && item.soldData ? (item.soldData.customerName || '—') : '—',
+                        customerPhone: item.isSold && item.soldData ? (item.soldData.customerPhone || '—') : '—',
+                        customerArea: item.isSold && item.soldData ? (item.soldData.customerArea || '—') : '—',
+                        sellingPrice: item.isSold && item.soldData && item.soldData.sellingPrice !== '' && item.soldData.sellingPrice != null ? Number(item.soldData.sellingPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '—',
                         paymentMode: item.isSold && item.soldData ? item.soldData.paymentMode : 'N/A',
                         referenceId: item.isSold && item.soldData ? item.soldData.financeProvider : 'N/A',
                         actionDate: item.isSold && item.soldData ? item.soldData.soldDate : 'N/A'
@@ -2066,7 +2254,7 @@
                 const namePart = r.name && r.name !== 'N/A' ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(r.name)}</span>` : '';
                 tr.innerHTML = `
                     <td class="p-4 ${statusColor}">${escapeHtml(r.status)}</td>
-                    <td class="p-4 text-slate-400">${escapeHtml(r.entryDate)}</td>
+                    <td class="px-2 py-4 text-slate-400 whitespace-nowrap">${escapeHtml(r.entryDate)}</td>
                     <td class="p-4 font-semibold theme-text-main">
                         ${namePart}
                         <span class="text-xs font-bold text-indigo-500">${escapeHtml(r.model)}</span>
@@ -2074,8 +2262,12 @@
                     <td class="p-4 text-slate-400 capitalize">${escapeHtml(r.colour)}</td>
                     <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.engine)}</td>
                     <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.frame)}</td>
-                    <td class="p-4 text-slate-400">${escapeHtml(r.actionDate)}</td>
-                    <td class="p-4 text-slate-400 font-medium">${escapeHtml(r.soldTo)}</td>
+                    <td class="px-2 py-4 text-slate-400 whitespace-nowrap">${escapeHtml(r.actionDate)}</td>
+                    <td class="p-4 text-slate-400 font-medium whitespace-nowrap">${r.isAdPoint ? `<span class="block whitespace-nowrap">AD Point</span>${r.adPointRegion ? `<span class="block font-semibold text-indigo-500 whitespace-nowrap">${escapeHtml(r.adPointRegion)}</span>` : ''}` : escapeHtml(r.soldTo)}</td>
+                    <td class="p-4 text-slate-300">${escapeHtml(r.customerName)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.customerPhone)}</td>
+                    <td class="p-4 text-slate-400">${escapeHtml(r.customerArea)}</td>
+                    <td class="p-4 text-emerald-400 font-semibold">${escapeHtml(r.sellingPrice === '—' ? '—' : '₹' + r.sellingPrice)}</td>
                     <td class="p-4 text-slate-400">${escapeHtml(r.paymentMode)}</td>
                     <td class="p-4 text-slate-400 font-mono">${escapeHtml(r.referenceId)}</td>
                 `;
@@ -2096,39 +2288,27 @@
 
             let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">`;
             html += `<head><meta charset="utf-8"/><style>
-                table { border-collapse: collapse; font-family: 'Inter', Arial, sans-serif; font-size: 10pt; }
-                th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
-                .title-row { background-color: #1e3a8a; color: #ffffff; font-weight: bold; font-size: 13pt; text-align: center; }
-                .sub-title-row { background-color: #3b82f6; color: #ffffff; font-weight: bold; font-size: 10pt; text-align: center; }
-                .info-row { background-color: #475569; color: #ffffff; font-size: 9pt; text-align: center; }
-                .header-row th { background-color: #0f172a; color: #ffffff; font-weight: bold; text-align: center; }
+                table { border-collapse: collapse; table-layout: auto; width: auto; font-family: Arial, sans-serif; font-size: 10pt; }
+                th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: center; vertical-align: middle; white-space: normal; overflow-wrap: break-word; }
+                .title-row { background-color: #1e3a8a; color: #ffffff; font-weight: bold; font-size: 13pt; text-align: center; vertical-align: middle; }
+                .sub-title-row { background-color: #3b82f6; color: #ffffff; font-weight: bold; font-size: 10pt; text-align: center; vertical-align: middle; }
+                .info-row { background-color: #475569; color: #ffffff; font-size: 9pt; text-align: center; vertical-align: middle; }
+                .header-row th { background-color: #0f172a; color: #ffffff; font-weight: bold; text-align: center; vertical-align: middle; }
                 .text-sold { color: #047857; font-weight: bold; }
                 .text-avail { color: #4338ca; font-weight: bold; }
+                .numeric-cell { mso-number-format: "\0"; vnd.ms-excel.numberformat: 0; }
+                .price-cell { mso-number-format: "₹\ #,##0.00"; }
             </style></head><body>`;
             html += `<table>`;
-            
-            // Explicitly lock columns A through J (10 columns) and prevent Excel from stretching rows past column J
-            html += `<colgroup>
-                <col style="width: 100px;">
-                <col style="width: 110px;">
-                <col style="width: 140px;">
-                <col style="width: 100px;">
-                <col style="width: 140px;">
-                <col style="width: 140px;">
-                <col style="width: 110px;">
-                <col style="width: 140px;">
-                <col style="width: 130px;">
-                <col style="width: 140px;">
-            </colgroup>`;
 
             // Row 1: Title
-            html += `<tr><td colspan="10" class="title-row">Viswasai Hero Inventory Report</td></tr>`;
+            html += `<tr><td colspan="14" class="title-row">Viswasai Hero Inventory Report</td></tr>`;
             // Row 2: Timeframe & Status Filter
-            html += `<tr><td colspan="10" class="sub-title-row">Timeframe: ${timeframe} | Status Filter: ${statusFilterVal}</td></tr>`;
+            html += `<tr><td colspan="14" class="sub-title-row">Timeframe: ${timeframe} | Status Filter: ${statusFilterVal}</td></tr>`;
             // Row 3: Download Time
-            html += `<tr><td colspan="10" class="info-row">Downloaded On: ${downloadTime}</td></tr>`;
+            html += `<tr><td colspan="14" class="info-row">Downloaded On: ${downloadTime}</td></tr>`;
             // Row 4: Blank Spacer
-            html += `<tr><td colspan="10" style="border:none; height:8px;"></td></tr>`;
+            html += `<tr><td colspan="14" style="border:none; height:8px;"></td></tr>`;
             // Row 5: Column Headers
             html += `<tr class="header-row">
                 <th>STOCK STATUS</th>
@@ -2139,24 +2319,53 @@
                 <th>FRAME NUMBER</th>
                 <th>SOLD DATE</th>
                 <th>SOLD TO</th>
+                <th>CUSTOMER NAME</th>
+                <th>PHONE NUMBER</th>
+                <th>CUSTOMER AREA</th>
+                <th>SELLING PRICE</th>
                 <th>MODE OF PAYMENT</th>
                 <th>REFERENCE ID</th>
             </tr>`;
 
-            // Data Rows
+            // Data Rows: export numeric-looking values as plain numeric cells (never scientific notation).
+            // Keep identifiers containing letters/symbols as text, and preserve long IDs/phone values safely.
+            const excelCell = (value, extraClass = '') => {
+                const text = value == null ? '' : String(value).trim();
+                const safe = escapeHtml(text);
+                if (/^\d+$/.test(text) && text.length <= 15) {
+                    return `<td class="numeric-cell ${extraClass}" style="mso-number-format:'\\0';vnd.ms-excel.numberformat:0" x:num="${Number(text)}">${Number(text)}</td>`;
+                }
+                return `<td class="${extraClass}">${safe}</td>`;
+            };
+            // Engine and frame values that contain only digits are explicitly exported as Excel numbers.
+            // Non-numeric values (for example, descriptive text) remain text and are not altered.
+            const excelVehicleNumberCell = value => {
+                const text = value == null ? '' : String(value).trim();
+                if (/^\d+$/.test(text) && text.length <= 15) {
+                    const numericValue = Number(text);
+                    return `<td class="numeric-cell" style="mso-number-format:'\\0';vnd.ms-excel.numberformat:0" x:num="${numericValue}">${numericValue}</td>`;
+                }
+                return `<td>${escapeHtml(text)}</td>`;
+            };
             rows.forEach(r => {
                 const statusClass = r.status.includes('Sold') ? 'text-sold' : 'text-avail';
+                const rawPrice = r.sellingPrice == null ? '' : String(r.sellingPrice).replace(/[₹,\s]/g, '');
+                const numericPrice = rawPrice !== '' && rawPrice !== '—' && /^\d+(\.\d+)?$/.test(rawPrice);
                 html += `<tr>
-                    <td class="${statusClass}">${r.status}</td>
-                    <td>${r.entryDate}</td>
-                    <td>${r.model}</td>
-                    <td>${r.colour}</td>
-                    <td>${r.engine}</td>
-                    <td>${r.frame}</td>
-                    <td>${r.actionDate}</td>
-                    <td>${r.soldTo}</td>
-                    <td>${r.paymentMode}</td>
-                    <td>${r.referenceId}</td>
+                    <td class="${statusClass}">${escapeHtml(r.status)}</td>
+                    <td>${escapeHtml(r.entryDate)}</td>
+                    <td>${escapeHtml(r.model)}</td>
+                    <td>${escapeHtml(r.colour)}</td>
+                    ${excelVehicleNumberCell(r.engine)}
+                    ${excelVehicleNumberCell(r.frame)}
+                    <td>${escapeHtml(r.actionDate)}</td>
+                    <td>${escapeHtml(r.soldTo)}</td>
+                    <td>${escapeHtml(r.customerName)}</td>
+                    ${excelCell(r.customerPhone)}
+                    <td>${escapeHtml(r.customerArea)}</td>
+                    ${numericPrice ? `<td class="price-cell">${Number(rawPrice).toFixed(2)}</td>` : `<td>${escapeHtml(r.sellingPrice)}</td>`}
+                    <td>${escapeHtml(r.paymentMode)}</td>
+                    <td>${escapeHtml(r.referenceId)}</td>
                 </tr>`;
             });
 
