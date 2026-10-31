@@ -124,6 +124,165 @@
             #recordsView button, #recordsView input, #recordsView select { display: none !important; }
             #recordsView h1, #recordsView .print-report-meta { break-inside: avoid !important; page-break-inside: avoid !important; }
         }
+
+        /* Date placeholder layer shared by laptop and mobile; date values and picker remain native. */
+        .date-placeholder-wrap {
+            position: relative;
+            display: block;
+            flex: 1 1 0;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .date-placeholder-wrap input[type="date"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .date-placeholder-wrap.is-empty input[type="date"]::-webkit-datetime-edit {
+            color: transparent;
+        }
+
+        .date-placeholder-text {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1;
+        }
+
+        .date-placeholder-text::after {
+            content: "DD-MM-YYYY";
+        }
+
+        /* Hide the placeholder as soon as a date is selected (laptop and mobile). */
+        .date-placeholder-wrap:not(.is-empty) .date-placeholder-text {
+            display: none !important;
+        }
+
+        .date-mobile-icon { display: none; }
+
+        /* Mobile-only layout and consistent sizing for Inventory Records & Reports.
+           Desktop and laptop layouts remain unchanged. */
+        @media screen and (max-width: 767px) {
+            #recordsView > header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 14px !important;
+                padding: 14px 16px !important;
+            }
+
+            #recordsView > header > div:first-child {
+                width: 100%;
+                min-width: 0;
+            }
+
+            #recordsView > header > div:first-child h2 {
+                font-size: 15px;
+                line-height: 1.3;
+            }
+
+            /* Place the monthly and yearly report groups side by side on mobile. */
+            #recordsView > header > .no-print {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                width: 100%;
+                max-width: 340px;
+                min-width: 0;
+                margin: 0 auto;
+                gap: 8px !important;
+            }
+
+            #recordsView > header > .no-print > div {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) !important;
+                align-items: stretch;
+                align-content: start;
+                width: 100%;
+                min-width: 0;
+                gap: 8px !important;
+            }
+
+            #recordsView > header > .no-print select,
+            #recordsView > header > .no-print button {
+                display: flex !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                height: 42px !important;
+                min-height: 42px !important;
+                box-sizing: border-box !important;
+                border-radius: 10px !important;
+                font-size: 10px !important;
+                padding-left: 6px !important;
+                padding-right: 6px !important;
+            }
+
+            #recordsView > header > .no-print select {
+                display: block !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            #recordsView > header > .no-print button {
+                align-items: center;
+                justify-content: center;
+                white-space: nowrap;
+                gap: 5px !important;
+            }
+
+            /* Mobile-only date placeholder and calendar icon presentation. */
+
+            .date-placeholder-text {
+                font-weight: 400 !important;
+            }
+
+            .date-placeholder-text::after {
+                content: "-- Select Date --";
+            }
+
+            .date-mobile-icon {
+                display: block;
+                position: absolute;
+                right: 11px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 15px;
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            .date-placeholder-wrap input[type="date"] {
+                padding-right: 36px !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                background-image: none !important;
+            }
+
+            /* Hide the browser's native down-arrow/calendar control; keep our custom calendar icon visible. */
+            .date-placeholder-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+                opacity: 0 !important;
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+
+            .date-placeholder-wrap input[type="date"]::-webkit-inner-spin-button,
+            .date-placeholder-wrap input[type="date"]::-webkit-clear-button {
+                display: none !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+        }
     </style>
 </head>
 <body id="appBody" class="h-full bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
@@ -302,7 +461,15 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] uppercase font-bold text-slate-400">Filter Entry Date</label>
-                        <input type="date" id="filterDate" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <div class="date-placeholder-wrap is-empty">
+
+                            <input type="date" id="filterDate" onchange="renderAvailableStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+
+                            <span class="date-placeholder-text" aria-hidden="true"></span>
+
+                            <i class="fa-regular fa-calendar date-mobile-icon" aria-hidden="true"></i>
+
+                        </div>
                     </div>
                     <div class="space-y-1">
                         <button onclick="resetAvailableFilters()" class="theme-btn-sec w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-xl transition">Reset Filters</button>
@@ -443,9 +610,25 @@
                     <div id="soldManualBox" class="hidden space-y-1 sm:col-span-2">
                         <label class="text-[10px] uppercase font-bold text-slate-400">From Date – To Date</label>
                         <div class="flex items-center space-x-1">
-                            <input type="date" id="filterSoldFromDate" onchange="renderSoldStock()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="From Date">
+                            <div class="date-placeholder-wrap is-empty">
+
+                                <input type="date" id="filterSoldFromDate" onchange="renderSoldStock()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="From Date">
+
+                                <span class="date-placeholder-text" aria-hidden="true"></span>
+
+                                <i class="fa-regular fa-calendar date-mobile-icon" aria-hidden="true"></i>
+
+                            </div>
                             <span class="text-slate-400 text-xs">-</span>
-                            <input type="date" id="filterSoldToDate" onchange="renderSoldStock()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="To Date">
+                            <div class="date-placeholder-wrap is-empty">
+
+                                <input type="date" id="filterSoldToDate" onchange="renderSoldStock()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="To Date">
+
+                                <span class="date-placeholder-text" aria-hidden="true"></span>
+
+                                <i class="fa-regular fa-calendar date-mobile-icon" aria-hidden="true"></i>
+
+                            </div>
                         </div>
                     </div>
 
@@ -506,14 +689,148 @@
                 </div>
                 <!-- Export Buttons for Excel & PDF -->
                 <div class="flex items-center space-x-2 no-print">
-                    <button onclick="exportReportToExcel()" class="px-3 py-2 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Export Filtered Report to Excel (.xls)">
-                        <i class="fa-solid fa-file-excel"></i>
-                        <span>Export Excel</span>
-                    </button>
-                    <button onclick="exportReportToPDF()" class="px-3 py-2 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Print / Export Report to PDF">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <span>Export PDF</span>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                        <label for="monthlyReportMonth" class="sr-only">Select report month</label>
+                        <select id="monthlyReportMonth" class="theme-input px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="Select month for monthly report">
+                            <option value="" selected disabled>-- Select Month --</option>
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                        <button onclick="sendMonthlyReportsByEmail()" class="px-3 py-2 bg-amber-600/25 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Download one Excel workbook with Available Stock and selected month's Sold Stock">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Monthly Report</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label for="yearlyReportYear" class="sr-only">Select report year</label>
+                        <select id="yearlyReportYear" class="theme-input px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="Select year for yearly report">
+                            <option value="" selected disabled>-- Select Year --</option>
+                            <option value="1990">1990</option>
+                            <option value="1991">1991</option>
+                            <option value="1992">1992</option>
+                            <option value="1993">1993</option>
+                            <option value="1994">1994</option>
+                            <option value="1995">1995</option>
+                            <option value="1996">1996</option>
+                            <option value="1997">1997</option>
+                            <option value="1998">1998</option>
+                            <option value="1999">1999</option>
+                            <option value="2000">2000</option>
+                            <option value="2001">2001</option>
+                            <option value="2002">2002</option>
+                            <option value="2003">2003</option>
+                            <option value="2004">2004</option>
+                            <option value="2005">2005</option>
+                            <option value="2006">2006</option>
+                            <option value="2007">2007</option>
+                            <option value="2008">2008</option>
+                            <option value="2009">2009</option>
+                            <option value="2010">2010</option>
+                            <option value="2011">2011</option>
+                            <option value="2012">2012</option>
+                            <option value="2013">2013</option>
+                            <option value="2014">2014</option>
+                            <option value="2015">2015</option>
+                            <option value="2016">2016</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                            <option value="2031">2031</option>
+                            <option value="2032">2032</option>
+                            <option value="2033">2033</option>
+                            <option value="2034">2034</option>
+                            <option value="2035">2035</option>
+                            <option value="2036">2036</option>
+                            <option value="2037">2037</option>
+                            <option value="2038">2038</option>
+                            <option value="2039">2039</option>
+                            <option value="2040">2040</option>
+                            <option value="2041">2041</option>
+                            <option value="2042">2042</option>
+                            <option value="2043">2043</option>
+                            <option value="2044">2044</option>
+                            <option value="2045">2045</option>
+                            <option value="2046">2046</option>
+                            <option value="2047">2047</option>
+                            <option value="2048">2048</option>
+                            <option value="2049">2049</option>
+                            <option value="2050">2050</option>
+                            <option value="2051">2051</option>
+                            <option value="2052">2052</option>
+                            <option value="2053">2053</option>
+                            <option value="2054">2054</option>
+                            <option value="2055">2055</option>
+                            <option value="2056">2056</option>
+                            <option value="2057">2057</option>
+                            <option value="2058">2058</option>
+                            <option value="2059">2059</option>
+                            <option value="2060">2060</option>
+                            <option value="2061">2061</option>
+                            <option value="2062">2062</option>
+                            <option value="2063">2063</option>
+                            <option value="2064">2064</option>
+                            <option value="2065">2065</option>
+                            <option value="2066">2066</option>
+                            <option value="2067">2067</option>
+                            <option value="2068">2068</option>
+                            <option value="2069">2069</option>
+                            <option value="2070">2070</option>
+                            <option value="2071">2071</option>
+                            <option value="2072">2072</option>
+                            <option value="2073">2073</option>
+                            <option value="2074">2074</option>
+                            <option value="2075">2075</option>
+                            <option value="2076">2076</option>
+                            <option value="2077">2077</option>
+                            <option value="2078">2078</option>
+                            <option value="2079">2079</option>
+                            <option value="2080">2080</option>
+                            <option value="2081">2081</option>
+                            <option value="2082">2082</option>
+                            <option value="2083">2083</option>
+                            <option value="2084">2084</option>
+                            <option value="2085">2085</option>
+                            <option value="2086">2086</option>
+                            <option value="2087">2087</option>
+                            <option value="2088">2088</option>
+                            <option value="2089">2089</option>
+                            <option value="2090">2090</option>
+                            <option value="2091">2091</option>
+                            <option value="2092">2092</option>
+                            <option value="2093">2093</option>
+                            <option value="2094">2094</option>
+                            <option value="2095">2095</option>
+                            <option value="2096">2096</option>
+                            <option value="2097">2097</option>
+                            <option value="2098">2098</option>
+                            <option value="2099">2099</option>
+                        </select>
+                        <button onclick="downloadYearlyReport()" class="px-3 py-2 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Download one Excel workbook with 12 monthly Sold Stock sheets for the selected year">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Yearly Report</span>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -575,14 +892,42 @@
                     <div id="reportManualBox" class="hidden space-y-1 sm:col-span-2">
                         <label class="text-[10px] uppercase font-bold text-slate-400">From Date – To Date</label>
                         <div class="flex items-center space-x-1">
-                            <input type="date" id="filterReportFromDate" onchange="generateReport()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="From Date">
+                            <div class="date-placeholder-wrap is-empty">
+
+                                <input type="date" id="filterReportFromDate" onchange="generateReport()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="From Date">
+
+                                <span class="date-placeholder-text" aria-hidden="true"></span>
+
+                                <i class="fa-regular fa-calendar date-mobile-icon" aria-hidden="true"></i>
+
+                            </div>
                             <span class="text-slate-400 text-xs">-</span>
-                            <input type="date" id="filterReportToDate" onchange="generateReport()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="To Date">
+                            <div class="date-placeholder-wrap is-empty">
+
+                                <input type="date" id="filterReportToDate" onchange="generateReport()" class="theme-input w-full px-2 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="To Date">
+
+                                <span class="date-placeholder-text" aria-hidden="true"></span>
+
+                                <i class="fa-regular fa-calendar date-mobile-icon" aria-hidden="true"></i>
+
+                            </div>
                         </div>
                     </div>
 
                     <div class="space-y-1">
                         <button onclick="resetReportFilters()" class="theme-btn-sec w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-xl transition">Reset Filters</button>
+                    </div>
+                    <div class="space-y-1">
+                        <button onclick="exportReportToExcel()" class="w-full px-3 py-2 bg-emerald-600/25 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1" title="Export Filtered Report to Excel (.xls)">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Export Excel</span>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <button onclick="exportReportToPDF()" class="w-full px-3 py-2 bg-indigo-600/25 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/30 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1" title="Print / Export Report to PDF">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Export PDF</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1829,11 +2174,15 @@
         function populateSoldYears() {
             const select = document.getElementById('filterSoldYear');
             if (select.children.length === 0) {
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = '-- Select Year --';
+                placeholder.selected = true;
+                select.appendChild(placeholder);
                 for (let y = 1990; y <= 2099; y++) {
                     const opt = document.createElement('option');
                     opt.value = y;
                     opt.innerText = y;
-                    if (y === new Date().getFullYear()) opt.selected = true;
                     select.appendChild(opt);
                 }
             }
@@ -2112,11 +2461,15 @@
         function populateReportYears() {
             const select = document.getElementById('filterReportYear');
             if (select.children.length === 0) {
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = '-- Select Year --';
+                placeholder.selected = true;
+                select.appendChild(placeholder);
                 for (let y = 1990; y <= 2099; y++) {
                     const opt = document.createElement('option');
                     opt.value = y;
                     opt.innerText = y;
-                    if (y === new Date().getFullYear()) opt.selected = true;
                     select.appendChild(opt);
                 }
             }
@@ -2182,12 +2535,18 @@
                         } else if (tf === 'yearly') {
                             if (fYear && itemDate.getFullYear().toString() !== fYear.toString()) include = false;
                         } else if (tf === 'manual') {
-                            const itemTime = itemDate.setHours(0,0,0,0);
-                            if (fFromDate) {
+                            // For custom date filtering, use the sold date for sold vehicles
+                            // and the entry date for available vehicles. When status is set to
+                            // All, each vehicle is filtered using its own applicable date.
+                            const reportDate = item.isSold && item.soldData && item.soldData.soldDate
+                                ? parseDateDMY(item.soldData.soldDate)
+                                : itemDate;
+                            const itemTime = reportDate ? new Date(reportDate).setHours(0,0,0,0) : null;
+                            if (itemTime !== null && fFromDate) {
                                 const fromObj = parseDateDMY(fFromDate);
                                 if (fromObj && itemTime < fromObj.setHours(0,0,0,0)) include = false;
                             }
-                            if (fToDate) {
+                            if (itemTime !== null && fToDate) {
                                 const toObj = parseDateDMY(fToDate);
                                 if (toObj && itemTime > toObj.setHours(23,59,59,999)) include = false;
                             }
@@ -2273,6 +2632,297 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // Creates one Excel-compatible workbook with two worksheets, then opens a prepared email.
+        // Without an email backend/integration, the browser cannot attach the file automatically;
+        // the user must attach the downloaded workbook in their email app and press Send.
+        function sendMonthlyReportsByEmail() {
+            const button = document.querySelector('button[onclick="sendMonthlyReportsByEmail()"]');
+            if (button) button.disabled = true;
+
+            try {
+                const monthSelect = document.getElementById('monthlyReportMonth');
+                if (!monthSelect || monthSelect.value === '') {
+                    showNotification('Select Month', 'Please select a month before downloading the monthly report.', 'error');
+                    return;
+                }
+                const now = new Date();
+                const selectedMonth = Number(monthSelect.value);
+                const selectedYear = now.getFullYear();
+                const monthStart = new Date(selectedYear, selectedMonth, 1);
+                const monthEnd = new Date(selectedYear, selectedMonth + 1, 0);
+                monthStart.setHours(0, 0, 0, 0);
+                monthEnd.setHours(23, 59, 59, 999);
+                const selectedMonthName = monthStart.toLocaleString('en-IN', { month: 'long' });
+
+                const reportHeaders = [
+                    'STOCK STATUS', 'ENTRY DATE', 'MODEL', 'COLOUR', 'ENGINE NUMBER',
+                    'FRAME NUMBER', 'SOLD DATE', 'SOLD TO', 'CUSTOMER NAME',
+                    'PHONE NUMBER', 'CUSTOMER AREA', 'SELLING PRICE',
+                    'MODE OF PAYMENT', 'REFERENCE ID'
+                ];
+
+                const toExcelRow = item => {
+                    const sold = !!item.isSold;
+                    const soldData = sold && item.soldData ? item.soldData : {};
+                    const soldToBase = sold
+                        ? ((soldData.soldTo === 'Partner' || soldData.soldTo === 'AD Point') ? 'AD Point' : (soldData.soldTo || 'N/A'))
+                        : 'N/A';
+                    const soldTo = sold
+                        ? soldToBase + (soldData.adPointRegion ? ` (${soldData.adPointRegion})` : '')
+                        : 'N/A';
+                    const price = sold && soldData.sellingPrice !== '' && soldData.sellingPrice != null
+                        ? Number(soldData.sellingPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : '—';
+                    return [
+                        sold ? 'Sold' : 'Available', item.date || 'N/A', item.model || 'N/A',
+                        item.colour || 'N/A', item.engine || 'N/A', item.frame || 'N/A',
+                        sold ? (soldData.soldDate || 'N/A') : 'N/A', soldTo,
+                        sold ? (soldData.customerName || '—') : '—',
+                        sold ? (soldData.customerPhone || '—') : '—',
+                        sold ? (soldData.customerArea || '—') : '—', price,
+                        sold ? (soldData.paymentMode || 'N/A') : 'N/A',
+                        sold ? (soldData.financeProvider || 'N/A') : 'N/A'
+                    ];
+                };
+
+                const availableItems = state.inventory.filter(item => !item.isSold);
+                const soldSelectedMonthItems = state.inventory.filter(item => {
+                    if (!item.isSold || !item.soldData || !item.soldData.soldDate) return false;
+                    const soldDate = parseDateDMY(item.soldData.soldDate);
+                    if (!soldDate || Number.isNaN(soldDate.getTime())) return false;
+                    soldDate.setHours(0, 0, 0, 0);
+                    return soldDate >= monthStart && soldDate <= monthEnd;
+                });
+
+                const xmlEscape = value => String(value == null ? '' : value)
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+                const worksheet = (name, rows) => {
+                    const isAvailableSheet = name === 'Available Stock';
+                    const columnIndexes = isAvailableSheet ? [0, 1, 2, 3, 4, 5] : reportHeaders.map((_, index) => index);
+                    const sheetHeaders = columnIndexes.map(index => reportHeaders[index]);
+                    const mergeAcross = sheetHeaders.length - 1;
+                    const titleCell = `<Cell ss:StyleID="Title" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">Viswasai Hero Inventory Report</Data></Cell>`;
+                    const subtitleCell = `<Cell ss:StyleID="SubTitle" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">${xmlEscape(name)}</Data></Cell>`;
+                    const infoCell = `<Cell ss:StyleID="Info" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">Generated On: ${xmlEscape(now.toLocaleString('en-IN'))}</Data></Cell>`;
+                    const titleRows = `<Row ss:AutoFitHeight="0" ss:Height="30">${titleCell}</Row>` +
+                        `<Row ss:AutoFitHeight="0" ss:Height="24">${subtitleCell}</Row>` +
+                        `<Row ss:AutoFitHeight="0" ss:Height="22">${infoCell}</Row>` +
+                        `<Row ss:Height="9"><Cell ss:StyleID="Spacer" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String"></Data></Cell></Row>`;
+                    const columnWidths = isAvailableSheet
+                        ? [100, 92, 125, 95, 165, 165]
+                        : [88, 90, 115, 88, 145, 155, 90, 115, 130, 110, 120, 105, 120, 125];
+                    const columnsXml = columnWidths.map(width => `<Column ss:AutoFitWidth="0" ss:Width="${width}"/>`).join('');
+                    const headerRow = `<Row ss:AutoFitHeight="0" ss:Height="36">${sheetHeaders.map(value => `<Cell ss:StyleID="Header"><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`).join('')}</Row>`;
+                    const dataRows = rows.map(item => {
+                        const row = columnIndexes.map(index => toExcelRow(item)[index]);
+                        const cells = row.map((value, index) => {
+                            let style = 'Body';
+                            if (index === 0) style = value === 'Sold' ? 'Sold' : 'Available';
+                            if (!isAvailableSheet && index === 11 && value !== '—') {
+                                const numericPrice = Number(String(value).replace(/,/g, ''));
+                                if (Number.isFinite(numericPrice)) {
+                                    return `<Cell ss:StyleID="Price"><Data ss:Type="Number">${numericPrice}</Data></Cell>`;
+                                }
+                            }
+                            if (!isAvailableSheet && (index === 4 || index === 5 || index === 9) && /^\d+$/.test(String(value).trim()) && String(value).trim().length <= 15) {
+                                return `<Cell ss:StyleID="Numeric"><Data ss:Type="Number">${Number(value)}</Data></Cell>`;
+                            }
+                            return `<Cell ss:StyleID="${style}"><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`;
+                        }).join('');
+                        return `<Row ss:AutoFitHeight="1" ss:Height="25">${cells}</Row>`;
+                    }).join('');
+                    return `<Worksheet ss:Name="${name}"><Table>${columnsXml}${titleRows}${headerRow}${dataRows}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>5</SplitHorizontal><TopRowBottomPane>5</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions></Worksheet>`;
+                };
+
+                const workbookXml = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>` +
+                    `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40">` +
+                    `<Styles>` +
+                    `<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="10"/></Style>` +
+                    `<Style ss:ID="Title"><Interior ss:Color="#1E3A8A" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1" ss:Size="13"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="SubTitle"><Interior ss:Color="#3B82F6" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1" ss:Size="10"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>` +
+                    `<Style ss:ID="Info"><Interior ss:Color="#475569" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Size="9"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>` +
+                    `<Style ss:ID="Spacer"><Borders/></Style>` +
+                    `<Style ss:ID="Body"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Header"><Interior ss:Color="#0F172A" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Sold"><Font ss:FontName="Arial" ss:Color="#047857" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Available"><Font ss:FontName="Arial" ss:Color="#4338CA" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Numeric"><NumberFormat ss:Format="0"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Price"><NumberFormat ss:Format="₹ #,##0.00"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `</Styles>` +
+                    worksheet('Available Stock', availableItems) + worksheet(`Sold Stock - ${selectedMonthName}`, soldSelectedMonthItems) + `</Workbook>`;
+
+                const blob = new Blob([workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const monthLabel = `${selectedMonthName}_${selectedYear}`;
+                const fileName = `Viswasai_Hero_Monthly_Reports_${monthLabel}.xls`;
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+                showNotification(
+                    'Workbook Downloaded',
+                    `Downloaded the ${selectedMonthName} ${selectedYear} workbook.`,
+                    'success'
+                );
+            } catch (error) {
+                console.error('Unable to prepare monthly inventory email:', error);
+                showNotification('Report Failed', 'Could not prepare the Excel workbook. Please try again.', 'error');
+            } finally {
+                if (button) setTimeout(() => { button.disabled = false; }, 1200);
+            }
+        }
+
+
+        function downloadYearlyReport() {
+            const button = document.querySelector('button[onclick="downloadYearlyReport()"]');
+            if (button) button.disabled = true;
+
+            try {
+                const yearSelect = document.getElementById('yearlyReportYear');
+                if (!yearSelect || yearSelect.value === '') {
+                    showNotification('Select Year', 'Please select a year before downloading the yearly report.', 'error');
+                    return;
+                }
+                const now = new Date();
+                const selectedYear = Number(yearSelect.value);
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+
+                const reportHeaders = [
+                    'STOCK STATUS', 'ENTRY DATE', 'MODEL', 'COLOUR', 'ENGINE NUMBER',
+                    'FRAME NUMBER', 'SOLD DATE', 'SOLD TO', 'CUSTOMER NAME',
+                    'PHONE NUMBER', 'CUSTOMER AREA', 'SELLING PRICE',
+                    'MODE OF PAYMENT', 'REFERENCE ID'
+                ];
+
+                const toExcelRow = item => {
+                    const sold = !!item.isSold;
+                    const soldData = sold && item.soldData ? item.soldData : {};
+                    const soldToBase = sold
+                        ? ((soldData.soldTo === 'Partner' || soldData.soldTo === 'AD Point') ? 'AD Point' : (soldData.soldTo || 'N/A'))
+                        : 'N/A';
+                    const soldTo = sold
+                        ? soldToBase + (soldData.adPointRegion ? ` (${soldData.adPointRegion})` : '')
+                        : 'N/A';
+                    const price = sold && soldData.sellingPrice !== '' && soldData.sellingPrice != null
+                        ? Number(soldData.sellingPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : '—';
+                    return [
+                        sold ? 'Sold' : 'Available', item.date || 'N/A', item.model || 'N/A',
+                        item.colour || 'N/A', item.engine || 'N/A', item.frame || 'N/A',
+                        sold ? (soldData.soldDate || 'N/A') : 'N/A', soldTo,
+                        sold ? (soldData.customerName || '—') : '—',
+                        sold ? (soldData.customerPhone || '—') : '—',
+                        sold ? (soldData.customerArea || '—') : '—', price,
+                        sold ? (soldData.paymentMode || 'N/A') : 'N/A',
+                        sold ? (soldData.financeProvider || 'N/A') : 'N/A'
+                    ];
+                };
+
+                const soldItemsByMonth = monthNames.map((monthName, monthIndex) => {
+                    const monthStart = new Date(selectedYear, monthIndex, 1);
+                    const monthEnd = new Date(selectedYear, monthIndex + 1, 0);
+                    monthStart.setHours(0, 0, 0, 0);
+                    monthEnd.setHours(23, 59, 59, 999);
+                    return state.inventory.filter(item => {
+                        if (!item.isSold || !item.soldData || !item.soldData.soldDate) return false;
+                        const soldDate = parseDateDMY(item.soldData.soldDate);
+                        if (!soldDate || Number.isNaN(soldDate.getTime())) return false;
+                        soldDate.setHours(0, 0, 0, 0);
+                        return soldDate >= monthStart && soldDate <= monthEnd;
+                    });
+                });
+
+                const xmlEscape = value => String(value == null ? '' : value)
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+                const worksheet = (name, rows) => {
+                    const isAvailableSheet = name === 'Available Stock';
+                    const columnIndexes = isAvailableSheet ? [0, 1, 2, 3, 4, 5] : reportHeaders.map((_, index) => index);
+                    const sheetHeaders = columnIndexes.map(index => reportHeaders[index]);
+                    const mergeAcross = sheetHeaders.length - 1;
+                    const titleCell = `<Cell ss:StyleID="Title" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">Viswasai Hero Inventory Report</Data></Cell>`;
+                    const subtitleCell = `<Cell ss:StyleID="SubTitle" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">${xmlEscape(name)}</Data></Cell>`;
+                    const infoCell = `<Cell ss:StyleID="Info" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">Generated On: ${xmlEscape(now.toLocaleString('en-IN'))}</Data></Cell>`;
+                    const titleRows = `<Row ss:AutoFitHeight="0" ss:Height="30">${titleCell}</Row>` +
+                        `<Row ss:AutoFitHeight="0" ss:Height="24">${subtitleCell}</Row>` +
+                        `<Row ss:AutoFitHeight="0" ss:Height="22">${infoCell}</Row>` +
+                        `<Row ss:Height="9"><Cell ss:StyleID="Spacer" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String"></Data></Cell></Row>`;
+                    const columnWidths = isAvailableSheet
+                        ? [100, 92, 125, 95, 165, 165]
+                        : [88, 90, 115, 88, 145, 155, 90, 115, 130, 110, 120, 105, 120, 125];
+                    const columnsXml = columnWidths.map(width => `<Column ss:AutoFitWidth="0" ss:Width="${width}"/>`).join('');
+                    const headerRow = `<Row ss:AutoFitHeight="0" ss:Height="36">${sheetHeaders.map(value => `<Cell ss:StyleID="Header"><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`).join('')}</Row>`;
+                    const dataRows = rows.map(item => {
+                        const row = columnIndexes.map(index => toExcelRow(item)[index]);
+                        const cells = row.map((value, index) => {
+                            let style = 'Body';
+                            if (index === 0) style = value === 'Sold' ? 'Sold' : 'Available';
+                            if (!isAvailableSheet && index === 11 && value !== '—') {
+                                const numericPrice = Number(String(value).replace(/,/g, ''));
+                                if (Number.isFinite(numericPrice)) {
+                                    return `<Cell ss:StyleID="Price"><Data ss:Type="Number">${numericPrice}</Data></Cell>`;
+                                }
+                            }
+                            if (!isAvailableSheet && (index === 4 || index === 5 || index === 9) && /^\d+$/.test(String(value).trim()) && String(value).trim().length <= 15) {
+                                return `<Cell ss:StyleID="Numeric"><Data ss:Type="Number">${Number(value)}</Data></Cell>`;
+                            }
+                            return `<Cell ss:StyleID="${style}"><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`;
+                        }).join('');
+                        return `<Row ss:AutoFitHeight="1" ss:Height="25">${cells}</Row>`;
+                    }).join('');
+                    return `<Worksheet ss:Name="${name}"><Table>${columnsXml}${titleRows}${headerRow}${dataRows}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>5</SplitHorizontal><TopRowBottomPane>5</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions></Worksheet>`;
+                };
+
+                const workbookXml = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>` +
+                    `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40">` +
+                    `<Styles>` +
+                    `<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="10"/></Style>` +
+                    `<Style ss:ID="Title"><Interior ss:Color="#1E3A8A" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1" ss:Size="13"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="SubTitle"><Interior ss:Color="#3B82F6" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1" ss:Size="10"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>` +
+                    `<Style ss:ID="Info"><Interior ss:Color="#475569" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Size="9"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style>` +
+                    `<Style ss:ID="Spacer"><Borders/></Style>` +
+                    `<Style ss:ID="Body"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Header"><Interior ss:Color="#0F172A" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Sold"><Font ss:FontName="Arial" ss:Color="#047857" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Available"><Font ss:FontName="Arial" ss:Color="#4338CA" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Numeric"><NumberFormat ss:Format="0"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Price"><NumberFormat ss:Format="₹ #,##0.00"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `</Styles>` +
+                    soldItemsByMonth.map((monthItems, monthIndex) => worksheet(monthNames[monthIndex], monthItems)).join('') +
+                    `</Workbook>`;
+
+                const blob = new Blob([workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const fileName = `Viswasai_Hero_Yearly_Report_${selectedYear}.xls`;
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+                showNotification(
+                    'Workbook Downloaded',
+                    `Downloaded the ${selectedYear} workbook with 12 monthly sold-stock sheets (January through December). Total sold records across the year: ${soldItemsByMonth.reduce((total, monthItems) => total + monthItems.length, 0)}.`,
+                    'success'
+                );
+            } catch (error) {
+                console.error('Unable to prepare yearly inventory report:', error);
+                showNotification('Report Failed', 'Could not prepare the Excel workbook. Please try again.', 'error');
+            } finally {
+                if (button) setTimeout(() => { button.disabled = false; }, 1200);
+            }
         }
 
         function exportReportToExcel() {
@@ -2627,6 +3277,42 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
         }
+    </script>
+
+    <script>
+        // Keep date placeholders visible until a date is actually selected.
+        (function () {
+            const dateFilterIds = [
+                'filterDate',
+                'filterSoldFromDate',
+                'filterSoldToDate',
+                'filterReportFromDate',
+                'filterReportToDate'
+            ];
+
+            function syncDatePlaceholders() {
+                dateFilterIds.forEach(function (id) {
+                    const field = document.getElementById(id);
+                    const wrapper = field ? field.closest('.date-placeholder-wrap') : null;
+                    if (wrapper) wrapper.classList.toggle('is-empty', !field.value);
+                });
+            }
+
+            dateFilterIds.forEach(function (id) {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.addEventListener('input', syncDatePlaceholders);
+                    field.addEventListener('change', syncDatePlaceholders);
+                    field.addEventListener('blur', syncDatePlaceholders);
+                }
+            });
+
+            // Also refresh after existing Reset buttons clear values programmatically.
+            document.addEventListener('click', function () {
+                setTimeout(syncDatePlaceholders, 0);
+            });
+            syncDatePlaceholders();
+        })();
     </script>
 </body>
 </html>
