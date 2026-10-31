@@ -557,6 +557,16 @@
                         </select>
                     </div>
                     <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-400">AD Point</label>
+                        <select id="filterSoldAdPoint" onchange="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                            <option value="">-- Select AD Point --</option>
+                            <option value="Kota">Kota</option>
+                            <option value="Podalakuru">Podalakuru</option>
+                            <option value="Rapur">Rapur</option>
+                            <option value="Venkatagiri">Venkatagiri</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
                         <label class="text-[10px] uppercase font-bold text-slate-400">Customer Area</label>
                         <input type="text" id="filterSoldCustomerArea" oninput="renderSoldStock()" class="theme-input w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Customer Area...">
                     </div>
@@ -934,7 +944,7 @@
                 <!-- Report Summary Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
                     <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
-                        <p class="text-xs font-medium text-slate-400">Incoming Stock (In Period)</p>
+                        <p class="text-xs font-medium text-slate-400">Dispatch Stock (In Period)</p>
                         <h3 class="text-2xl font-bold text-indigo-400 mt-1" id="reportIncomingCount">0</h3>
                     </div>
                     <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
@@ -2201,6 +2211,7 @@
             document.getElementById('filterSoldEngine').value = '';
             document.getElementById('filterSoldFrame').value = '';
             document.getElementById('filterSoldTo').value = '';
+            document.getElementById('filterSoldAdPoint').value = '';
             document.getElementById('filterSoldCustomerArea').value = '';
             document.getElementById('filterSoldPayment').value = '';
             document.getElementById('filterSoldTimeframe').value = 'all';
@@ -2223,6 +2234,7 @@
             const fEng = document.getElementById('filterSoldEngine').value.toLowerCase();
             const fFrm = document.getElementById('filterSoldFrame').value.toLowerCase();
             const fSoldTo = document.getElementById('filterSoldTo').value;
+            const fAdPoint = document.getElementById('filterSoldAdPoint').value;
             const fCustomerArea = document.getElementById('filterSoldCustomerArea').value.trim().toLowerCase();
             const fPayment = document.getElementById('filterSoldPayment').value;
             const fTf = document.getElementById('filterSoldTimeframe').value;
@@ -2243,6 +2255,7 @@
                 if (fEng && !item.engine.toLowerCase().includes(fEng)) return false;
                 if (fFrm && !item.frame.toLowerCase().includes(fFrm)) return false;
                 if (fSoldTo && !((fSoldTo === 'AD Point' && (item.soldData.soldTo === 'AD Point' || item.soldData.soldTo === 'Partner')) || item.soldData.soldTo === fSoldTo)) return false;
+                if (fAdPoint && !((item.soldData.soldTo === 'AD Point' || item.soldData.soldTo === 'Partner') && item.soldData.adPointRegion === fAdPoint)) return false;
                 if (fCustomerArea && !(item.soldData.customerArea || '').toLowerCase().includes(fCustomerArea)) return false;
                 if (fPayment && item.soldData.paymentMode !== fPayment) return false;
 
@@ -2777,6 +2790,8 @@
                     `Downloaded the ${selectedMonthName} ${selectedYear} workbook.`,
                     'success'
                 );
+                // Return the monthly report dropdown to its placeholder after a successful download.
+                monthSelect.value = '';
             } catch (error) {
                 console.error('Unable to prepare monthly inventory email:', error);
                 showNotification('Report Failed', 'Could not prepare the Excel workbook. Please try again.', 'error');
@@ -2923,6 +2938,8 @@
                     `Downloaded the ${selectedYear} workbook with 12 monthly sold-stock sheets (January through December). Total sold records across the year: ${soldItemsByMonth.reduce((total, monthItems) => total + monthItems.length, 0)}.`,
                     'success'
                 );
+                // Return the yearly report dropdown to its placeholder after a successful download.
+                yearSelect.value = '';
             } catch (error) {
                 console.error('Unable to prepare yearly inventory report:', error);
                 showNotification('Report Failed', 'Could not prepare the Excel workbook. Please try again.', 'error');
