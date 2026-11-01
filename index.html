@@ -27,6 +27,10 @@
             display: none;
         }
 
+        /* Inventory status colors used in the Detailed Report Log and PDF. */
+        .report-status-available { color: #16a34a !important; }
+        .report-status-sold { color: #f97316 !important; }
+
         @media print {
             @page { size: A4 landscape; margin: 0; }
             html, body {
@@ -120,6 +124,16 @@
                 font-size: 5.6pt !important; font-weight: 700 !important; text-transform: uppercase;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
+            #recordsView td.report-status-available,
+            #recordsView td.report-status-available * {
+                color: #16a34a !important;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+            #recordsView td.report-status-sold,
+            #recordsView td.report-status-sold * {
+                color: #f97316 !important;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
             #recordsView a { color: #1f2937 !important; text-decoration: none !important; }
             #recordsView button, #recordsView input, #recordsView select { display: none !important; }
             #recordsView h1, #recordsView .print-report-meta { break-inside: avoid !important; page-break-inside: avoid !important; }
@@ -168,9 +182,49 @@
 
         .date-mobile-icon { display: none; }
 
+        /* Report header selectors: allow returning to the placeholder and keep labels readable. */
+        #monthlyReportMonth,
+        #yearlyReportYear {
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        #filterReportStatus {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Slightly widen the Status Filter on laptop/desktop only.
+           The mobile sizing below remains unchanged. */
+        @media screen and (min-width: 768px) {
+            #filterReportStatus {
+                width: calc(100% + 1ch);
+                max-width: none;
+            }
+        }
+
         /* Mobile-only layout and consistent sizing for Inventory Records & Reports.
            Desktop and laptop layouts remain unchanged. */
         @media screen and (max-width: 767px) {
+            #recordsView > header > .no-print {
+                flex-wrap: wrap !important;
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            #recordsView > header > .no-print > div {
+                min-width: 0;
+                flex-wrap: wrap;
+            }
+
+            #recordsView > header > .no-print select {
+                min-width: 0;
+                max-width: 100%;
+            }
+
             #recordsView > header {
                 flex-direction: column !important;
                 align-items: stretch !important;
@@ -409,7 +463,7 @@
             <!-- Footer -->
             <footer class="theme-footer bg-slate-900 border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-400 space-y-1">
                 <p><span class="font-semibold text-slate-300">Address:</span> Viswasai Agencies, Shiridi Sai Nagar, Gudur, 524101</p>
-                <p><span class="font-semibold text-slate-300">Contact Details:</span> +91 9440018183 | vsainventory@gmail.com</p>
+                <p><span class="font-semibold text-slate-300">Contact Details:</span> +91 9515471545 | kurapatisnehith@gmail.com</p>
                 <p class="text-indigo-400 font-medium">Developed and maintained by Snehith Kumar Kurapati</p>
             </footer>
         </div>
@@ -702,7 +756,7 @@
                     <div class="flex items-center space-x-2">
                         <label for="monthlyReportMonth" class="sr-only">Select report month</label>
                         <select id="monthlyReportMonth" class="theme-input px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="Select month for monthly report">
-                            <option value="" selected disabled>-- Select Month --</option>
+                            <option value="" selected>-- Select Month --</option>
                             <option value="0">January</option>
                             <option value="1">February</option>
                             <option value="2">March</option>
@@ -724,7 +778,7 @@
                     <div class="flex items-center space-x-2">
                         <label for="yearlyReportYear" class="sr-only">Select report year</label>
                         <select id="yearlyReportYear" class="theme-input px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500" title="Select year for yearly report">
-                            <option value="" selected disabled>-- Select Year --</option>
+                            <option value="" selected>-- Select Year --</option>
                             <option value="1990">1990</option>
                             <option value="1991">1991</option>
                             <option value="1992">1992</option>
@@ -949,11 +1003,11 @@
                     </div>
                     <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
                         <p class="text-xs font-medium text-slate-400">Outgoing Stock (Sold in Period)</p>
-                        <h3 class="text-2xl font-bold text-emerald-400 mt-1" id="reportOutgoingCount">0</h3>
+                        <h3 class="text-2xl font-bold text-orange-400 mt-1" id="reportOutgoingCount">0</h3>
                     </div>
                     <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
                         <p class="text-xs font-medium text-slate-400">Available Stock</p>
-                        <h3 class="text-2xl font-bold text-amber-400 mt-1" id="reportHoldingCount">0</h3>
+                        <h3 class="text-2xl font-bold text-green-400 mt-1" id="reportHoldingCount">0</h3>
                     </div>
                 </div>
 
@@ -2314,7 +2368,7 @@
 
                     tr.innerHTML = `
                         <td class="p-4 w-10" onclick="event.stopPropagation()"><input type="checkbox" value="${item.id}" onchange="updateSelectedSoldCount()" class="sold-checkbox w-4 h-4 text-indigo-600 rounded bg-slate-900 border-slate-700 focus:ring-indigo-500 cursor-pointer" aria-label="Select sold vehicle"></td>
-                        <td class="p-4 text-emerald-400 font-semibold">Sold</td>
+                        <td class="p-4 report-status-sold font-semibold">Sold</td>
                         <td class="px-2 py-4 text-slate-400 whitespace-nowrap">${escapeHtml(item.date)}</td>
                         <td class="p-4 font-semibold theme-text-main">
                             ${namePart}
@@ -2628,7 +2682,7 @@
             reportRows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-700/40 transition';
-                const statusColor = r.status.includes('Sold') ? 'text-emerald-400 font-semibold' : 'text-indigo-400 font-semibold';
+                const statusColor = r.status.includes('Sold') ? 'report-status-sold font-semibold' : 'report-status-available font-semibold';
                 const namePart = r.name && r.name !== 'N/A' ? `<span class="block text-xs font-semibold theme-text-main text-white">${escapeHtml(r.name)}</span>` : '';
                 tr.innerHTML = `
                     <td class="p-4 ${statusColor}">${escapeHtml(r.status)}</td>
@@ -2766,8 +2820,8 @@
                     `<Style ss:ID="Spacer"><Borders/></Style>` +
                     `<Style ss:ID="Body"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `<Style ss:ID="Header"><Interior ss:Color="#0F172A" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
-                    `<Style ss:ID="Sold"><Font ss:FontName="Arial" ss:Color="#047857" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
-                    `<Style ss:ID="Available"><Font ss:FontName="Arial" ss:Color="#4338CA" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Sold"><Font ss:FontName="Arial" ss:Color="#F97316" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Available"><Font ss:FontName="Arial" ss:Color="#16A34A" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `<Style ss:ID="Numeric"><NumberFormat ss:Format="0"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `<Style ss:ID="Price"><NumberFormat ss:Format="₹ #,##0.00"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `</Styles>` +
@@ -2849,6 +2903,16 @@
                     ];
                 };
 
+                // Dispatched Stock includes every vehicle entered during the selected year.
+                // Available Stock includes vehicles entered during that year that are still available.
+                const entryYearItems = state.inventory.filter(item => {
+                    const entryDate = parseDateDMY(item.date);
+                    return entryDate && !Number.isNaN(entryDate.getTime()) && entryDate.getFullYear() === selectedYear;
+                });
+                const dispatchedItems = entryYearItems;
+                const availableYearItems = entryYearItems.filter(item => !item.isSold);
+
+                // Keep the existing January-to-December sold-stock sheets, based on Sold Date.
                 const soldItemsByMonth = monthNames.map((monthName, monthIndex) => {
                     const monthStart = new Date(selectedYear, monthIndex, 1);
                     const monthEnd = new Date(selectedYear, monthIndex + 1, 0);
@@ -2868,7 +2932,11 @@
                     .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
                 const worksheet = (name, rows) => {
                     const isAvailableSheet = name === 'Available Stock';
-                    const columnIndexes = isAvailableSheet ? [0, 1, 2, 3, 4, 5] : reportHeaders.map((_, index) => index);
+                    const isDispatchedSheet = name === 'Dispatched Stock';
+                    // Dispatched Stock mirrors Available Stock but omits STOCK STATUS.
+                    const columnIndexes = isAvailableSheet ? [0, 1, 2, 3, 4, 5]
+                        : isDispatchedSheet ? [1, 2, 3, 4, 5]
+                        : reportHeaders.map((_, index) => index);
                     const sheetHeaders = columnIndexes.map(index => reportHeaders[index]);
                     const mergeAcross = sheetHeaders.length - 1;
                     const titleCell = `<Cell ss:StyleID="Title" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String">Viswasai Hero Inventory Report</Data></Cell>`;
@@ -2880,6 +2948,7 @@
                         `<Row ss:Height="9"><Cell ss:StyleID="Spacer" ss:MergeAcross="${mergeAcross}"><Data ss:Type="String"></Data></Cell></Row>`;
                     const columnWidths = isAvailableSheet
                         ? [100, 92, 125, 95, 165, 165]
+                        : isDispatchedSheet ? [92, 125, 95, 165, 165]
                         : [88, 90, 115, 88, 145, 155, 90, 115, 130, 110, 120, 105, 120, 125];
                     const columnsXml = columnWidths.map(width => `<Column ss:AutoFitWidth="0" ss:Width="${width}"/>`).join('');
                     const headerRow = `<Row ss:AutoFitHeight="0" ss:Height="36">${sheetHeaders.map(value => `<Cell ss:StyleID="Header"><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`).join('')}</Row>`;
@@ -2887,14 +2956,17 @@
                         const row = columnIndexes.map(index => toExcelRow(item)[index]);
                         const cells = row.map((value, index) => {
                             let style = 'Body';
-                            if (index === 0) style = value === 'Sold' ? 'Sold' : 'Available';
-                            if (!isAvailableSheet && index === 11 && value !== '—') {
+                            if (!isDispatchedSheet && index === 0) style = value === 'Sold' ? 'Sold' : 'Available';
+                            if (!isAvailableSheet && !isDispatchedSheet && index === 11 && value !== '—') {
                                 const numericPrice = Number(String(value).replace(/,/g, ''));
                                 if (Number.isFinite(numericPrice)) {
                                     return `<Cell ss:StyleID="Price"><Data ss:Type="Number">${numericPrice}</Data></Cell>`;
                                 }
                             }
-                            if (!isAvailableSheet && (index === 4 || index === 5 || index === 9) && /^\d+$/.test(String(value).trim()) && String(value).trim().length <= 15) {
+                            const isNumericIdentifier = isDispatchedSheet
+                                ? (index === 3 || index === 4)
+                                : (!isAvailableSheet && (index === 4 || index === 5 || index === 9));
+                            if (isNumericIdentifier && /^\d+$/.test(String(value).trim()) && String(value).trim().length <= 15) {
                                 return `<Cell ss:StyleID="Numeric"><Data ss:Type="Number">${Number(value)}</Data></Cell>`;
                             }
                             return `<Cell ss:StyleID="${style}"><Data ss:Type="String">${xmlEscape(value)}</Data></Cell>`;
@@ -2902,6 +2974,28 @@
                         return `<Row ss:AutoFitHeight="1" ss:Height="25">${cells}</Row>`;
                     }).join('');
                     return `<Worksheet ss:Name="${name}"><Table>${columnsXml}${titleRows}${headerRow}${dataRows}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>5</SplitHorizontal><TopRowBottomPane>5</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions></Worksheet>`;
+                };
+
+                // Overview sheet follows the same font, title bars, borders, alignment and row sizing.
+                const overviewWorksheet = () => {
+                    const totalSold = soldItemsByMonth.reduce((total, monthItems) => total + monthItems.length, 0);
+                    const summaryRows = [
+                        ['TOTAL DISPATCHED VEHICLES', dispatchedItems.length],
+                        ['CURRENTLY AVAILABLE VEHICLES', availableYearItems.length],
+                        ['TOTAL SOLD VEHICLES THIS YEAR', totalSold]
+                    ];
+                    const titleRows =
+                        `<Row ss:AutoFitHeight="0" ss:Height="30"><Cell ss:StyleID="Title" ss:MergeAcross="1"><Data ss:Type="String">Viswasai Hero Inventory Report</Data></Cell></Row>` +
+                        `<Row ss:AutoFitHeight="0" ss:Height="24"><Cell ss:StyleID="SubTitle" ss:MergeAcross="1"><Data ss:Type="String">Yearly Overview - ${selectedYear}</Data></Cell></Row>` +
+                        `<Row ss:AutoFitHeight="0" ss:Height="22"><Cell ss:StyleID="Info" ss:MergeAcross="1"><Data ss:Type="String">Generated On: ${xmlEscape(now.toLocaleString('en-IN'))}</Data></Cell></Row>` +
+                        `<Row ss:Height="9"><Cell ss:StyleID="Spacer" ss:MergeAcross="1"><Data ss:Type="String"></Data></Cell></Row>`;
+                    const summaryHeader = `<Row ss:AutoFitHeight="0" ss:Height="36"><Cell ss:StyleID="Header"><Data ss:Type="String">YEARLY SUMMARY</Data></Cell><Cell ss:StyleID="Header"><Data ss:Type="String">VEHICLE COUNT</Data></Cell></Row>`;
+                    const summaryData = summaryRows.map(([label, count]) => `<Row ss:AutoFitHeight="1" ss:Height="25"><Cell ss:StyleID="Body"><Data ss:Type="String">${xmlEscape(label)}</Data></Cell><Cell ss:StyleID="Numeric"><Data ss:Type="Number">${count}</Data></Cell></Row>`).join('');
+                    const sectionSpacer = `<Row ss:Height="12"><Cell ss:StyleID="Spacer"><Data ss:Type="String"></Data></Cell><Cell ss:StyleID="Spacer"><Data ss:Type="String"></Data></Cell></Row>`;
+                    const monthHeader = `<Row ss:AutoFitHeight="0" ss:Height="36"><Cell ss:StyleID="Header"><Data ss:Type="String">MONTH</Data></Cell><Cell ss:StyleID="Header"><Data ss:Type="String">SOLD VEHICLES</Data></Cell></Row>`;
+                    const monthData = soldItemsByMonth.map((items, index) => `<Row ss:AutoFitHeight="1" ss:Height="25"><Cell ss:StyleID="Body"><Data ss:Type="String">${monthNames[index]}</Data></Cell><Cell ss:StyleID="Numeric"><Data ss:Type="Number">${items.length}</Data></Cell></Row>`).join('');
+                    const totalRow = `<Row ss:AutoFitHeight="1" ss:Height="27"><Cell ss:StyleID="SubTitle"><Data ss:Type="String">TOTAL SOLD THIS YEAR</Data></Cell><Cell ss:StyleID="SubTitle"><Data ss:Type="Number">${totalSold}</Data></Cell></Row>`;
+                    return `<Worksheet ss:Name="Overview"><Table><Column ss:AutoFitWidth="0" ss:Width="245"/><Column ss:AutoFitWidth="0" ss:Width="125"/>${titleRows}${summaryHeader}${summaryData}${sectionSpacer}${monthHeader}${monthData}${totalRow}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>5</SplitHorizontal><TopRowBottomPane>5</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions></Worksheet>`;
                 };
 
                 const workbookXml = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>` +
@@ -2914,11 +3008,14 @@
                     `<Style ss:ID="Spacer"><Borders/></Style>` +
                     `<Style ss:ID="Body"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `<Style ss:ID="Header"><Interior ss:Color="#0F172A" ss:Pattern="Solid"/><Font ss:FontName="Arial" ss:Color="#FFFFFF" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
-                    `<Style ss:ID="Sold"><Font ss:FontName="Arial" ss:Color="#047857" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
-                    `<Style ss:ID="Available"><Font ss:FontName="Arial" ss:Color="#4338CA" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Sold"><Font ss:FontName="Arial" ss:Color="#F97316" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
+                    `<Style ss:ID="Available"><Font ss:FontName="Arial" ss:Color="#16A34A" ss:Bold="1"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `<Style ss:ID="Numeric"><NumberFormat ss:Format="0"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `<Style ss:ID="Price"><NumberFormat ss:Format="₹ #,##0.00"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CBD5E1"/></Borders></Style>` +
                     `</Styles>` +
+                    overviewWorksheet() +
+                    worksheet('Dispatched Stock', dispatchedItems) +
+                    worksheet('Available Stock', availableYearItems) +
                     soldItemsByMonth.map((monthItems, monthIndex) => worksheet(monthNames[monthIndex], monthItems)).join('') +
                     `</Workbook>`;
 
@@ -2935,7 +3032,7 @@
 
                 showNotification(
                     'Workbook Downloaded',
-                    `Downloaded the ${selectedYear} workbook with 12 monthly sold-stock sheets (January through December). Total sold records across the year: ${soldItemsByMonth.reduce((total, monthItems) => total + monthItems.length, 0)}.`,
+                    `Downloaded the ${selectedYear} workbook with Overview, Dispatched Stock, Available Stock, and 12 monthly sold-stock sheets. Vehicles entered during the year: ${dispatchedItems.length}; still available from those entries: ${availableYearItems.length}; sold during the year: ${soldItemsByMonth.reduce((total, monthItems) => total + monthItems.length, 0)}.`,
                     'success'
                 );
                 // Return the yearly report dropdown to its placeholder after a successful download.
@@ -2967,8 +3064,8 @@
                 .sub-title-row { background-color: #3b82f6; color: #ffffff; font-weight: bold; font-size: 10pt; text-align: center; vertical-align: middle; }
                 .info-row { background-color: #475569; color: #ffffff; font-size: 9pt; text-align: center; vertical-align: middle; }
                 .header-row th { background-color: #0f172a; color: #ffffff; font-weight: bold; text-align: center; vertical-align: middle; }
-                .text-sold { color: #047857; font-weight: bold; }
-                .text-avail { color: #4338ca; font-weight: bold; }
+                .text-sold { color: #F97316 !important; font-weight: bold; }
+                .text-avail { color: #16A34A !important; font-weight: bold; }
                 .numeric-cell { mso-number-format: "\0"; vnd.ms-excel.numberformat: 0; }
                 .price-cell { mso-number-format: "₹\ #,##0.00"; }
             </style></head><body>`;
