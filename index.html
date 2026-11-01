@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Inventory Management System</title>
+    <link rel="manifest" href="/Snehith/manifest.json">
+
+<meta name="theme-color" content="#0f172a">
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<meta name="apple-mobile-web-app-title" content="Viswasai Hero">
+
+<link rel="apple-touch-icon" href="/Snehith/icons/hero-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -3434,5 +3447,17 @@
             syncDatePlaceholders();
         })();
     </script>
+    <script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register(
+            "/Snehith/service-worker.js",
+            { scope: "/Snehith/" }
+        ).catch(error => {
+            console.error("Service Worker registration failed:", error);
+        });
+    });
+}
+</script>
 </body>
 </html>
