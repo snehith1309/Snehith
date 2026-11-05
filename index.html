@@ -18,6 +18,7 @@
 
 <link rel="apple-touch-icon" href="/Snehith/icons/hero-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -222,6 +223,32 @@
         /* Mobile-only layout and consistent sizing for Inventory Records & Reports.
            Desktop and laptop layouts remain unchanged. */
         @media screen and (max-width: 767px) {
+            /* Keep Available Stock actions visible and easy to tap on mobile. */
+            #availableStockView > header {
+                align-items: stretch !important;
+            }
+
+            #availableStockActions {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+                min-width: 0;
+                justify-content: stretch;
+                gap: 8px !important;
+            }
+
+            #availableStockActions button:not(.hidden) {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                min-width: 0;
+                min-height: 42px;
+                padding: 8px 6px;
+                white-space: nowrap;
+                box-sizing: border-box;
+            }
+
             #recordsView > header > .no-print {
                 flex-wrap: wrap !important;
                 min-width: 0;
@@ -483,7 +510,7 @@
 
         <!-- ================= AVAILABLE STOCK VIEW ================= -->
         <div id="availableStockView" class="hidden flex-1 flex flex-col">
-            <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+            <header class="theme-header bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center space-x-3">
                     <button onclick="returnHome()" class="theme-btn-sec p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition">
                         <i class="fa-solid fa-arrow-left"></i>
@@ -491,10 +518,14 @@
                     <h2 class="theme-text-main font-bold text-lg text-white">Available Stock Inventory</h2>
                 </div>
                 <!-- Action Buttons -->
-                <div class="flex items-center space-x-2">
+                <div id="availableStockActions" class="flex flex-wrap items-center justify-end gap-2">
                     <button onclick="deleteSelectedAvailable()" id="deleteSelectedBtn" class="hidden px-3 py-2 bg-rose-600/25 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 rounded-xl text-xs font-semibold transition items-center space-x-1">
                         <i class="fa-solid fa-trash"></i>
                         <span>Delete Selected</span>
+                    </button>
+                    <button onclick="openExcelImportModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/20 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Import Excel</span>
                     </button>
                     <button onclick="openAddEntryModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
                         <i class="fa-solid fa-plus"></i>
@@ -1063,6 +1094,58 @@
 
     <!-- ================= MODALS ================= -->
 
+    <!-- Import Excel Modal -->
+    <div id="excelImportModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-4xl p-6 space-y-5 modal-transition max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+                <div>
+                    <h3 class="theme-text-main text-lg font-bold text-white"><i class="fa-solid fa-file-excel text-emerald-400 mr-2"></i>Import Vehicles from Excel</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">Upload a workbook, review the vehicle rows, and import them into Available Stock.</p>
+                </div>
+                <button onclick="closeExcelImportModal()" class="text-slate-400 hover:text-white" title="Close"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-2">
+                <label for="excelImportFile" class="block text-xs font-semibold text-slate-300">Excel Workbook (.xlsx, .xls, .csv)</label>
+                <input type="file" id="excelImportFile" accept=".xlsx,.xls,.csv" onchange="handleExcelFileSelection(event)" class="theme-input block w-full text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 bg-slate-900 border border-slate-700 rounded-xl">
+                <p class="text-[10px] text-slate-500">The first worksheet will be read. Include Chasis/Chassis No, Engine No, Model, Colour/Color, and Date of Entry columns. Each vehicle's own date will be imported from Excel.</p>
+            </div>
+
+            <div id="excelImportMessage" class="hidden rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-xs text-slate-300"></div>
+
+            <div id="excelImportPreviewWrap" class="hidden space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h4 class="text-sm font-bold text-white">Import Preview</h4>
+                    <div id="excelImportSummary" class="text-[11px] text-slate-300"></div>
+                </div>
+                <div class="overflow-x-auto border border-slate-700 rounded-xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-3">#</th>
+                                <th class="p-3">Model</th>
+                                <th class="p-3">Engine No.</th>
+                                <th class="p-3">Frame No.</th>
+                                <th class="p-3">Colour</th>
+                                <th class="p-3">Date of Entry</th>
+                                <th class="p-3">Validation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="excelImportPreviewBody" class="divide-y divide-slate-700/60"></tbody>
+                    </table>
+                </div>
+                <p id="excelImportPreviewNote" class="text-[10px] text-slate-500"></p>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 border-t border-slate-700 pt-4">
+                <button onclick="closeExcelImportModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-semibold transition">Cancel</button>
+                <button id="confirmExcelImportBtn" onclick="confirmExcelImport()" disabled class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-semibold shadow-lg transition">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Import Vehicles
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add New Entry Modal -->
     <div id="addEntryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <div class="theme-card bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-xl p-6 space-y-6 modal-transition max-h-[90vh] overflow-y-auto">
@@ -1462,8 +1545,386 @@
                 q2: 'In which school Vikranth completed his 10th?', a2: 'minerva',
                 q3: 'When is your wedding anniversary?', a3: 'dec12'
             },
-            inventory: []
+            inventory: [],
+            importedBatches: []
         };
+
+
+        // One-time opening stock import from TEST.xlsx.
+        // All imported vehicles are marked as available and use 01-01-2026 as Date of Entry.
+        const openingStockImportBatchId = 'TEST_XLSX_OPENING_STOCK_2026_01_01_V1';
+        const openingStockImportRows = [{"sourceNo":1,"frame":"MBLJFW715TGG00922","engine":"JF17EUTGG08106","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":2,"frame":"MBLJFW718TGG01143","engine":"JF17EUTGG11141","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":3,"frame":"MBLJFW712TGJ02593","engine":"JF17EUTGJ16256","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":4,"frame":"MBLJFW714TGK00363","engine":"JF17EUTGK02193","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":5,"frame":"MBLJFW711TGK00322","engine":"JF17EUTGK02218","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":6,"frame":"MBLJFW712TGK00345","engine":"JF17EUTGK02254","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":7,"frame":"MBLJFW713TGK00337","engine":"JF17EUTGK02179","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":8,"frame":"MBLJFW714TGK00301","engine":"JF17EUTGK02149","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":9,"frame":"MBLJFW718TGK00298","engine":"JF17EUTGK01886","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":10,"frame":"MBLJFW718TGK00317","engine":"JF17EUTGK02202","model":"DESTINI 125 VX","colour":"BRD"},{"sourceNo":11,"frame":"MBLJFW71XTGH01342","engine":"JF17EUTGH12657","model":"DESTINI 125 VX","colour":"FWT"},{"sourceNo":12,"frame":"MBLJFW723TGK05319","engine":"JF17EUTGK06400","model":"DESTINI 125 ZX+","colour":"FWT"},{"sourceNo":13,"frame":"MBLJFW724TGK05197","engine":"JF17EUTGK06289","model":"DESTINI 125 ZX+","colour":"FWT"},{"sourceNo":14,"frame":"MBLJFW727TGK05260","engine":"JF17EUTGK06308","model":"DESTINI 125 ZX+","colour":"FWT"},{"sourceNo":15,"frame":"MBLJFW722TGG13586","engine":"JF17EUTGG15112","model":"DESTINI 125 ZX+","colour":"GMM"},{"sourceNo":16,"frame":"MBLJFW722TGG12275","engine":"JF17EUTGG13622","model":"DESTINI 125 ZX+","colour":"GMM"},{"sourceNo":17,"frame":"MBLJFW725TGG12674","engine":"JF17EUTGG14034","model":"DESTINI 125 ZX+","colour":"GMM"},{"sourceNo":18,"frame":"MBLJFW721TGJ01248","engine":"JF17EUTGJ01275","model":"DESTINI 125 ZX","colour":"MGV"},{"sourceNo":19,"frame":"MBLJFW728TGJ13932","engine":"JF17EUTGJ16443","model":"DESTINI 125 ZX","colour":"MGV"},{"sourceNo":20,"frame":"MBLJFW721TGF04276","engine":"JF17EUTGF04791","model":"DESTINI 125 ZX","colour":"PBE"},{"sourceNo":21,"frame":"MBLJFW720TGJ13018","engine":"JF17EUTGJ15378","model":"DESTINI 125 ZX","colour":"PBE"},{"sourceNo":22,"frame":"MBLJFW721TGJ12279","engine":"JF17EUTGJ14562","model":"DESTINI 125 ZX","colour":"PBE"},{"sourceNo":23,"frame":"MBLJFW722TGJ12985","engine":"JF17EUTGJ15300","model":"DESTINI 125 ZX","colour":"PBE"},{"sourceNo":24,"frame":"MBLJFW723TGJ13031","engine":"JF17EUTGJ15375","model":"DESTINI 125 ZX","colour":"PBE"},{"sourceNo":25,"frame":"MBLJFW724TGJ12244","engine":"JF17EUTGJ14658","model":"DESTINI 125 ZX","colour":"PBE"},{"sourceNo":26,"frame":"MBLJFW723TGC06277","engine":"JF17EUTGC07034","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":27,"frame":"MBLJFW720TGE14326","engine":"JF17EUTGE16888","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":28,"frame":"MBLJFW729TGF13291","engine":"JF17EUTGF15121","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":29,"frame":"MBLJFW720TGG10332","engine":"JF17EUTGG11495","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":30,"frame":"MBLJFW720TGG10198","engine":"JF17EUTGG11498","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":31,"frame":"MBLJFW729TGG12886","engine":"JF17EUTGG14327","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":32,"frame":"MBLJFW721TGG12929","engine":"JF17EUTGG14376","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":33,"frame":"MBLJFW721TGG13319","engine":"JF17EUTGG14867","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":34,"frame":"MBLJFW724TGG12908","engine":"JF17EUTGG14321","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":35,"frame":"MBLJFW726TGG14126","engine":"JF17EUTGG15804","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":36,"frame":"MBLJFW719TGJ02655","engine":"JF17EUTGJ16999","model":"DESTINI 125 ZX+","colour":"PEB"},{"sourceNo":37,"frame":"MBLJFW722TGJ01548","engine":"JF17EUTGJ01594","model":"DESTINI 125 ZX+","colour":"PKB"},{"sourceNo":38,"frame":"MBLJFW721TGJ01539","engine":"JF17EUTGJ01474","model":"DESTINI 125 ZX+","colour":"PKB"},{"sourceNo":39,"frame":"MBLJFW729TGJ13096","engine":"JF17EUTGJ15468","model":"DESTINI 125 ZX+","colour":"PKB"},{"sourceNo":40,"frame":"MBLJFW727TGJ13100","engine":"JF17EUTGJ15414","model":"DESTINI 125 ZX+","colour":"PKB"},{"sourceNo":41,"frame":"MBLJFW724TGJ13278","engine":"JF17EUTGJ15661","model":"DESTINI 125 ZX+","colour":"PKB"},{"sourceNo":42,"frame":"MBLJAW49XT9F00926","engine":"JA07AYT9F01227","model":"GLAMOUR HGLATDRSCFI","colour":"BMS"},{"sourceNo":43,"frame":"MBLJAW491T9J03926","engine":"JA07AYT9J06426","model":"GLAMOUR HGLATDRSCFI","colour":"BRD"},{"sourceNo":44,"frame":"MBLJAW493T9J03720","engine":"JA07AYT9J06283","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":45,"frame":"MBLJAW499T9J03771","engine":"JA07AYT9J06279","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":46,"frame":"MBLJAW49XT9J03732","engine":"JA07AYT9J06293","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":47,"frame":"MBLJAW492T9J03661","engine":"JA07AYT9J06168","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":48,"frame":"MBLJAW491T9K02388","engine":"JA07AYT9J06933","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":49,"frame":"MBLJAW491T9K02407","engine":"JA07AYT9K00858","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":50,"frame":"MBLJAW499T9K02364","engine":"JA07AYT9K00549","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":51,"frame":"MBLJAW495T9K02443","engine":"JA07AYT9K00807","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":52,"frame":"MBLJAW493T9K02361","engine":"JA07AYT9K00801","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":53,"frame":"MBLJAW495T9K02426","engine":"JA07AYT9K00855","model":"GLAMOUR HGLATDRSCFI","colour":"TBK"},{"sourceNo":54,"frame":"MBLJAW577T9E11196","engine":"JA07A1T9E14354","model":"GLAMOUR X HGLMRDSSCFI","colour":"BLB"},{"sourceNo":55,"frame":"MBLHAW539T9K40640","engine":"HA11F2T9K00706","model":"HF DELUXE HDLXBIRSCFI","colour":"BKB"},{"sourceNo":56,"frame":"MBLHAW533T9G41801","engine":"HA11F2T9G01917","model":"HF DELUXE HDLXBIRSCFI","colour":"BKR"},{"sourceNo":57,"frame":"MBLHAW531T9G41831","engine":"HA11F2T9G01849","model":"HF DELUXE HDLXBIRSCFI","colour":"BKR"},{"sourceNo":58,"frame":"MBLHAW441T9J41661","engine":"HA11F4T9J08251","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":59,"frame":"MBLHAW441T9J41692","engine":"HA11F4T9J08175","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":60,"frame":"MBLHAW44XT9J41674","engine":"HA11F4T9J08072","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":61,"frame":"MBLHAW449T9J41617","engine":"HA11F4T9J08187","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":62,"frame":"MBLHAW448T9J41706","engine":"HA11F4T9J08252","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":63,"frame":"MBLHAW448T9J41673","engine":"HA11F4T9J08070","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":64,"frame":"MBLHAW447T9J41826","engine":"HA11F4T9J08068","model":"HF DELUXE HDLHAIRSCFI","colour":"SBK"},{"sourceNo":65,"frame":"MBLHAW414T6H02283","engine":"HA11F2T6H02343","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":66,"frame":"MBLHAW412T6H02296","engine":"HA11F2T6H02396","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":67,"frame":"MBLHAW418T6J02136","engine":"HA11F2T6J02025","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":68,"frame":"MBLHAW417T6J02094","engine":"HA11F2T6J02106","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":69,"frame":"MBLHAW417T6J02080","engine":"HA11F2T6J02108","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":70,"frame":"MBLHAW416T6J02104","engine":"HA11F2T6J02068","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":71,"frame":"MBLHAW416T6J02085","engine":"HA11F2T6J02115","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":72,"frame":"MBLHAW414T6J02070","engine":"HA11F2T6J01928","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":73,"frame":"MBLHAW413T6J02089","engine":"HA11F2T6J02109","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":74,"frame":"MBLHAW413T6J02075","engine":"HA11F2T6J01925","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":75,"frame":"MBLHAW410T6J02101","engine":"HA11F2T6J01942","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":76,"frame":"MBLHAW410T6J02082","engine":"HA11F2T6J02123","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":77,"frame":"MBLHAW41XT6J02123","engine":"HA11F2T6J02044","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":78,"frame":"MBLHAW415T6K00332","engine":"HA11F2T6K00001","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":79,"frame":"MBLHAW419T6K00270","engine":"HA11F2T6J00814","model":"PASSION + HPPLBIRSCFI","colour":"BHG"},{"sourceNo":80,"frame":"MBLHAW417T6H00561","engine":"HA11F2T6H00415","model":"PASSION + HPPLBIRSCFI","colour":"BKB"},{"sourceNo":81,"frame":"MBLHAW419T6H01985","engine":"HA11F2T6H01881","model":"PASSION + HPPLBIRSCFI","colour":"BKB"},{"sourceNo":82,"frame":"MBLHAW413T6H02386","engine":"HA11F2T6H02203","model":"PASSION + HPPLBIRSCFI","colour":"BKB"},{"sourceNo":83,"frame":"MBLHAW412T6J00835","engine":"HA11F2T6J00668","model":"PASSION + HPPLBIRSCFI","colour":"BKB"},{"sourceNo":84,"frame":"MBLHAW411T6K00179","engine":"HA11F2T6J02605","model":"PASSION + HPPLBIRSCFI","colour":"BRB"},{"sourceNo":85,"frame":"MBLHAW547THJ00312","engine":"HA11F2THJ01911","model":"PASSION + HPPLDISSCFI","colour":"HGR"},{"sourceNo":86,"frame":"MBLHAW414T6J00965","engine":"HA11F2T6J00881","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":87,"frame":"MBLHAW410T6J00929","engine":"HA11F2T6J00913","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":88,"frame":"MBLHAW412T6J01175","engine":"HA11F2T6J01069","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":89,"frame":"MBLHAW41XT6J01957","engine":"HA11F2T6J01841","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":90,"frame":"MBLHAW411T6J01619","engine":"HA11F2T6J01586","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":91,"frame":"MBLHAW415T6J01963","engine":"HA11F2T6J01898","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":92,"frame":"MBLHAW419T6K00124","engine":"HA11F2T6J02737","model":"PASSION + HPPLBIRSCFI","colour":"SBK"},{"sourceNo":93,"frame":"MBLJFW766T6E00052","engine":"JF16E3TGD01974","model":"PLEASURE+ HPLNCDRVCFI","colour":"BTL"},{"sourceNo":94,"frame":"MBLJFW760T6H00069","engine":"JF16E3TGG00848","model":"PLEASURE+ HPLNCDRVCFI","colour":"BTL"},{"sourceNo":95,"frame":"MBLJFW766T6H00089","engine":"JF16E3TGF12735","model":"PLEASURE+ HPLNCDRVCFI","colour":"BTL"},{"sourceNo":96,"frame":"MBLJFW768T6J00056","engine":"JF16E3TGH10668","model":"PLEASURE+ HPLNCDRVCFI","colour":"BTL"},{"sourceNo":97,"frame":"MBLJFW767T6J00016","engine":"JF16E3TGH00121","model":"PLEASURE+ HPLNCDRVCFI","colour":"MVG"},{"sourceNo":98,"frame":"MBLJFW770T6J00142","engine":"JF16E4TGH00826","model":"PLEASURE+ XTEC HPLNCDRZCFI","colour":"BTL"},{"sourceNo":99,"frame":"MBLJFW771TGH01296","engine":"JF16E4TGH01476","model":"PLEASURE+ XTEC HPLNJDRZCFI","colour":"ILG"},{"sourceNo":100,"frame":"MBLJFW77XTGJ00014","engine":"JF16E4TGJ00028","model":"PLEASURE+ XTEC HPLNJDRZCFI","colour":"ILG"},{"sourceNo":101,"frame":"MBLHAW472T6H07308","engine":"HA11F7T6H07523","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":102,"frame":"MBLHAW47XT6H07332","engine":"HA11F7T6H07538","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":103,"frame":"MBLHAW478T6H07314","engine":"HA11F7T6H07554","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":104,"frame":"MBLHAW479T6H07290","engine":"HA11F7T6H07144","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":105,"frame":"MBLHAW471T6H07302","engine":"HA11F7T6H07531","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":106,"frame":"MBLHAW472T6H07292","engine":"HA11F7T6H07380","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":107,"frame":"MBLHAW470T6H07291","engine":"HA11F7T6H07382","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":108,"frame":"MBLHAW470T6H07307","engine":"HA11F7T6H07540","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":109,"frame":"MBLHAW471T6H07834","engine":"HA11F7T6H08173","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":110,"frame":"MBLHAW479T6H07595","engine":"HA11F7T6H06867","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":111,"frame":"MBLHAW475T6H07772","engine":"HA11F7T6H08036","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":112,"frame":"MBLHAW475T6H07612","engine":"HA11F7T6H06877","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":113,"frame":"MBLHAW474T6H07844","engine":"HA11F7T6H08145","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":114,"frame":"MBLHAW485T6H00751","engine":"HA11F7T6H08465","model":"SPLENDOR + HSPLMDRSCFI","colour":"BBK"},{"sourceNo":115,"frame":"MBLHAW473T6J04798","engine":"HA11F7T6J01781","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":116,"frame":"MBLHAW476T6J04780","engine":"HA11F7T6J04875","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":117,"frame":"MBLHAW479T6J04790","engine":"HA11F7T6J01408","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":118,"frame":"MBLHAW47XT6J04829","engine":"HA11F7T6J05290","model":"SPLENDOR + HSPLMIRSCFI","colour":"BBK"},{"sourceNo":119,"frame":"MBLHAW487T6J00911","engine":"HA11F7T6J08166","model":"SPLENDOR + HSPLMDRSCFI","colour":"BBK"},{"sourceNo":120,"frame":"MBLHAW483T6J00940","engine":"HA11F7T6J07944","model":"SPLENDOR + HSPLMDRSCFI","colour":"BBK"},{"sourceNo":121,"frame":"MBLHAW480T6J00927","engine":"HA11F7T6J08177","model":"SPLENDOR + HSPLMDRSCFI","colour":"BBK"},{"sourceNo":122,"frame":"MBLHAW472T6G07547","engine":"HA11F7T6G07625","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":123,"frame":"MBLHAW472T6H01363","engine":"HA11F7T6H01118","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":124,"frame":"MBLHAW470T6H00731","engine":"HA11F7T6H00348","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":125,"frame":"MBLHAW478T6H02095","engine":"HA11F7T6H01946","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":126,"frame":"MBLHAW472T6H01346","engine":"HA11F7T6H01202","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":127,"frame":"MBLHAW472T6J05778","engine":"HA11F7T6J05139","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":128,"frame":"MBLHAW476T6J05783","engine":"HA11F7T6J05137","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":129,"frame":"MBLHAW484T6J00249","engine":"HA11F7T6J03406","model":"SPLENDOR + HSPLMDRSCFI","colour":"BHG"},{"sourceNo":130,"frame":"MBLHAW472T6J07370","engine":"HA11F7T6J07843","model":"SPLENDOR + HSPLMIRSCFI","colour":"BHG"},{"sourceNo":131,"frame":"MBLHAW471T6J04590","engine":"HA11F7T6J04889","model":"SPLENDOR + HSPLMIRSCFI","colour":"SBK"},{"sourceNo":132,"frame":"MBLHAW475T6J04592","engine":"HA11F7T6J04826","model":"SPLENDOR + HSPLMIRSCFI","colour":"SBK"},{"sourceNo":133,"frame":"MBLHAW479T6J06569","engine":"HA11F7T6J06631","model":"SPLENDOR + HSPLMIRSCFI","colour":"SBK"},{"sourceNo":134,"frame":"MBLHAW471T6J06596","engine":"HA11F7T6J07351","model":"SPLENDOR + HSPLMIRSCFI","colour":"SBK"},{"sourceNo":135,"frame":"MBLHAW33XTHJ08852","engine":"HA11FBTHJ07982","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":136,"frame":"MBLHAW333THK03298","engine":"HA11FBTHK03153","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":137,"frame":"MBLHAW335THK02069","engine":"HA11FBTHK01950","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":138,"frame":"MBLHAW336THK01979","engine":"HA11FBTHK01514","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":139,"frame":"MBLHAW338THK13728","engine":"HA11FBTHK13735","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":140,"frame":"MBLHAW332THK13725","engine":"HA11FBTHK13722","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":141,"frame":"MBLHAW333THK13555","engine":"HA11FBTHK13574","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":142,"frame":"MBLHAW333THK13720","engine":"HA11FBTHK13752","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":143,"frame":"MBLHAW334THK13760","engine":"HA11FBTHK13758","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":144,"frame":"MBLHAW336THK13713","engine":"HA11FBTHK13749","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"BHG"},{"sourceNo":145,"frame":"MBLHAW333THK03530","engine":"HA11FBTHJ40831","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"MGM"},{"sourceNo":146,"frame":"MBLHAW336THK03408","engine":"HA11FBTHK03238","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"MGM"},{"sourceNo":147,"frame":"MBLHAW339THK03452","engine":"HA11FBTHK03302","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"MGM"},{"sourceNo":148,"frame":"MBLHAW330THK09933","engine":"HA11FBTHK09684","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"RBK"},{"sourceNo":149,"frame":"MBLHAW331THK10038","engine":"HA11FBTHK09777","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"RBK"},{"sourceNo":150,"frame":"MBLHAW332THK10064","engine":"HA11FBTHK07761","model":"SPLENDOR+ XTEC 2.0 HSPPLHRSCFI","colour":"RBK"},{"sourceNo":151,"frame":"MBLJAW626T9G12039","engine":"JA07A6T9G17981","model":"SUPER SPLENDOR XTEC 2.0 HSPSFDRSCFI","colour":"MBC"},{"sourceNo":152,"frame":"MBLJAW62XT9G12030","engine":"JA07A6T9G17891","model":"SUPER SPLENDOR XTEC 2.0 HSPSFDRSCFI","colour":"MBC"},{"sourceNo":153,"frame":"MBLJAW620T9G11999","engine":"JA07A6T9G17536","model":"SUPER SPLENDOR XTEC 2.0 HSPSFDRSCFI","colour":"MBC"},{"sourceNo":154,"frame":"MBLJAW622T9J02476","engine":"JA07A6T9J02933","model":"SUPER SPLENDOR XTEC 2.0 HSPSFDRSCFI","colour":"MBN"},{"sourceNo":155,"frame":"MBLJAU055TGK11159","engine":"JA07A0TGJ10814","model":"XTREME 125R HXTRPSSSCFI","colour":"ABO"},{"sourceNo":156,"frame":"MBLJAU052TGK10373","engine":"JA07A0TGK02336","model":"XTREME 125R HXTRPSSSCFI","colour":"ABO"},{"sourceNo":157,"frame":"MBLJAU064TGJ03723","engine":"JA07A3TGH01440","model":"XTREME 125R HXTRSASSCFI","colour":"BPR"},{"sourceNo":158,"frame":"MBLJAU067TGJ03926","engine":"JA07A3TGJ02788","model":"XTREME 125R HXTRSASSCFI","colour":"BPR"},{"sourceNo":159,"frame":"MBLJAU065TGJ04038","engine":"JA07A3TGJ02765","model":"XTREME 125R HXTRSASSCFI","colour":"BPR"},{"sourceNo":160,"frame":"MBLJAU062TGJ03770","engine":"JA07A3TGJ00431","model":"XTREME 125R HXTRSASSCFI","colour":"BPR"}];
+
+        async function importOpeningStockFromExcel() {
+            if (!isFirebaseInitialized || !db) return;
+
+            state.importedBatches = Array.isArray(state.importedBatches) ? state.importedBatches : [];
+            if (state.importedBatches.includes(openingStockImportBatchId)) {
+                console.info('Opening stock import already completed; skipping duplicate import.');
+                return;
+            }
+
+            const existingKeys = new Set();
+            (state.inventory || []).forEach(item => {
+                const engine = String(item.engine || '').trim().toUpperCase();
+                const frame = String(item.frame || '').trim().toUpperCase();
+                if (engine) existingKeys.add('E:' + engine);
+                if (frame) existingKeys.add('F:' + frame);
+            });
+
+            let importedCount = 0;
+            let skippedCount = 0;
+
+            openingStockImportRows.forEach(row => {
+                const engine = String(row.engine || '').trim();
+                const frame = String(row.frame || '').trim();
+                const engineKey = 'E:' + engine.toUpperCase();
+                const frameKey = 'F:' + frame.toUpperCase();
+
+                if (!engine || !frame || existingKeys.has(engineKey) || existingKeys.has(frameKey)) {
+                    skippedCount++;
+                    return;
+                }
+
+                state.inventory.push({
+                    id: 'EXCEL-' + String(row.sourceNo).padStart(3, '0') + '-' + frame,
+                    name: '',
+                    model: row.model,
+                    engine: engine,
+                    frame: frame,
+                    date: '01-01-2026',
+                    colour: row.colour,
+                    remarks: 'Imported from TEST.xlsx',
+                    isSold: false,
+                    soldData: null,
+                    timestamp: Date.now()
+                });
+
+                existingKeys.add(engineKey);
+                existingKeys.add(frameKey);
+                importedCount++;
+            });
+
+            // Preserve existing dropdown options and append any models/colours missing from Settings.
+            openingStockImportRows.forEach(row => {
+                if (row.model && !state.modelsList.includes(row.model)) state.modelsList.push(row.model);
+                if (row.colour && !state.coloursList.includes(row.colour)) state.coloursList.push(row.colour);
+            });
+
+            state.importedBatches.push(openingStockImportBatchId);
+            const saved = await saveData();
+
+            if (saved) {
+                populateDropdowns();
+                updateDashboardBadges();
+                console.info(`Opening stock import complete: ${importedCount} added, ${skippedCount} skipped.`);
+                showNotification(
+                    'Opening Stock Imported',
+                    `${importedCount} vehicles imported successfully. ${skippedCount} duplicate or invalid rows skipped. Date of Entry: 01-01-2026.`,
+                    'success'
+                );
+            } else {
+                console.error('Opening stock import could not be saved to Firebase. The batch marker was not confirmed.');
+                showNotification('Import Not Saved', 'The opening stock could not be saved to the cloud. Please check your Firebase connection and try again.', 'error');
+            }
+        }
+
+        // ================= REUSABLE EXCEL IMPORT =================
+        let pendingExcelImportRows = [];
+        let pendingExcelImportFileName = '';
+
+        function openExcelImportModal() {
+            if (!isFirebaseInitialized || !db) {
+                showNotification('Cloud Not Ready', 'Please wait until the Firebase connection is ready, then open Import Excel again.', 'error');
+                return;
+            }
+
+            pendingExcelImportRows = [];
+            pendingExcelImportFileName = '';
+            document.getElementById('excelImportFile').value = '';
+            document.getElementById('excelImportPreviewWrap').classList.add('hidden');
+            document.getElementById('excelImportMessage').classList.add('hidden');
+            document.getElementById('excelImportPreviewBody').innerHTML = '';
+            document.getElementById('confirmExcelImportBtn').disabled = true;
+            document.getElementById('confirmExcelImportBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1"></i> Import Vehicles';
+            document.getElementById('excelImportModal').classList.remove('hidden');
+            applyTheme(state.theme);
+        }
+
+        function closeExcelImportModal() {
+            document.getElementById('excelImportModal').classList.add('hidden');
+            pendingExcelImportRows = [];
+            pendingExcelImportFileName = '';
+        }
+
+        function normalizeExcelHeader(value) {
+            return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function findExcelColumn(headers, aliases) {
+            const normalizedAliases = aliases.map(normalizeExcelHeader);
+            return headers.findIndex(header => normalizedizedExcelHeader(header, normalizedAliases));
+        }
+
+        function normalizedizedExcelHeader(header, aliases) {
+            return aliases.includes(normalizeExcelHeader(header));
+        }
+
+        function showExcelImportMessage(message, isError = false) {
+            const box = document.getElementById('excelImportMessage');
+            box.textContent = message;
+            box.className = `rounded-xl border px-4 py-3 text-xs ${isError ? 'border-rose-500/40 bg-rose-500/10 text-rose-300' : 'border-indigo-500/30 bg-indigo-500/10 text-indigo-200'}`;
+            box.classList.remove('hidden');
+        }
+
+        async function handleExcelFileSelection(event) {
+            const file = event.target.files && event.target.files[0];
+            pendingExcelImportRows = [];
+            pendingExcelImportFileName = '';
+            document.getElementById('confirmExcelImportBtn').disabled = true;
+            document.getElementById('excelImportPreviewWrap').classList.add('hidden');
+            if (!file) return;
+
+            if (!window.XLSX) {
+                showExcelImportMessage('The Excel reader could not be loaded. Check your internet connection and refresh the app.', true);
+                return;
+            }
+
+            try {
+                const buffer = await file.arrayBuffer();
+                const workbook = window.XLSX.read(buffer, { type: 'array', cellDates: true });
+                const firstSheetName = workbook.SheetNames[0];
+                if (!firstSheetName) throw new Error('The workbook does not contain a worksheet.');
+
+                const worksheet = workbook.Sheets[firstSheetName];
+                const matrix = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: false });
+                const headerIndex = matrix.findIndex(row => row.some(cell => String(cell || '').trim() !== ''));
+                if (headerIndex < 0) throw new Error('The selected worksheet is empty.');
+
+                const headers = matrix[headerIndex].map(cell => String(cell || '').trim());
+                const frameIndex = findExcelColumn(headers, ['chasisno', 'chassisno', 'chasisnumber', 'chassisnumber', 'framenumber', 'frameno', 'vin']);
+                const engineIndex = findExcelColumn(headers, ['engineno', 'enginenumber', 'engine']);
+                const modelIndex = findExcelColumn(headers, ['model', 'modelname', 'vehmodel']);
+                const colourIndex = findExcelColumn(headers, ['colour', 'color', 'colourcode', 'colorcode']);
+                const dateIndex = findExcelColumn(headers, ['dateofentry', 'entrydate', 'date', 'vehicledate', 'stockdate']);
+
+                const missing = [];
+                if (frameIndex < 0) missing.push('Chasis/Chassis No or VIN');
+                if (engineIndex < 0) missing.push('Engine No');
+                if (modelIndex < 0) missing.push('Model');
+                if (colourIndex < 0) missing.push('Colour/Color');
+                if (dateIndex < 0) missing.push('Date of Entry');
+                if (missing.length) throw new Error(`Required column(s) not found: ${missing.join(', ')}.`);
+
+                const parsedRows = [];
+                for (let i = headerIndex + 1; i < matrix.length; i++) {
+                    const row = matrix[i];
+                    const frame = String(row[frameIndex] ?? '').trim();
+                    const engine = String(row[engineIndex] ?? '').trim();
+                    const model = String(row[modelIndex] ?? '').trim();
+                    const colour = String(row[colourIndex] ?? '').trim();
+                    const date = parseExcelDateForInventory(row[dateIndex]);
+                    if (!frame && !engine && !model && !colour && !String(row[dateIndex] ?? '').trim()) continue;
+                    parsedRows.push({ sourceRow: i + 1, frame, engine, model, colour, date });
+                }
+
+                if (!parsedRows.length) throw new Error('No vehicle rows were found below the column headings.');
+
+                pendingExcelImportRows = parsedRows;
+                pendingExcelImportFileName = file.name;
+                renderExcelImportPreview();
+                showExcelImportMessage(`${file.name} loaded successfully. Review the vehicle details and Date of Entry read from Excel before importing.`);
+            } catch (error) {
+                console.error('Excel import read error:', error);
+                showExcelImportMessage(error.message || 'Unable to read this workbook. Please check the file format and column headings.', true);
+            }
+        }
+
+        function parseExcelDateForInventory(value) {
+            if (value === null || value === undefined || value === '') return '';
+
+            let date;
+            if (value instanceof Date && !Number.isNaN(value.getTime())) {
+                date = new Date(value.getFullYear(), value.getMonth(), value.getDate());
+            } else if (typeof value === 'number' && window.XLSX && window.XLSX.SSF) {
+                const parsed = window.XLSX.SSF.parse_date_code(value);
+                if (parsed && parsed.y && parsed.m && parsed.d) date = new Date(parsed.y, parsed.m - 1, parsed.d);
+            } else {
+                const text = String(value).trim();
+                let match = text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+                if (match) {
+                    // India-friendly interpretation for dates such as 01/02/2026 = 1 February 2026.
+                    date = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+                } else {
+                    match = text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+                    if (match) date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+                    else {
+                        const parsedDate = new Date(text);
+                        if (!Number.isNaN(parsedDate.getTime())) {
+                            date = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+                        }
+                    }
+                }
+            }
+
+            if (!date || Number.isNaN(date.getTime())) return '';
+            return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+        }
+
+        function getExcelImportValidation(rows) {
+            const seenEngines = new Set();
+            const seenFrames = new Set();
+            (state.inventory || []).forEach(item => {
+                const engine = String(item.engine || '').trim().toUpperCase();
+                const frame = String(item.frame || '').trim().toUpperCase();
+                if (engine) seenEngines.add(engine);
+                if (frame) seenFrames.add(frame);
+            });
+
+            return rows.map(row => {
+                const engineKey = row.engine.toUpperCase();
+                const frameKey = row.frame.toUpperCase();
+                let reason = '';
+                if (!row.engine || !row.frame || !row.model || !row.colour || !row.date) {
+                    reason = 'Missing required value (including valid Date of Entry)';
+                } else if (seenEngines.has(engineKey) || seenFrames.has(frameKey) ||
+                           seenEngines.has(frameKey) || seenFrames.has(engineKey)) {
+                    reason = 'Duplicate in inventory/file';
+                }
+                if (!reason) {
+                    seenEngines.add(engineKey);
+                    seenFrames.add(frameKey);
+                }
+                return { ...row, valid: !reason, reason };
+            });
+        }
+
+        function renderExcelImportPreview() {
+            const validated = getExcelImportValidation(pendingExcelImportRows);
+            const validCount = validated.filter(row => row.valid).length;
+            const skippedCount = validated.length - validCount;
+            const body = document.getElementById('excelImportPreviewBody');
+            body.innerHTML = '';
+
+            validated.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'text-slate-300';
+                const values = [
+                    String(row.sourceRow),
+                    row.model || '—',
+                    row.engine || '—',
+                    row.frame || '—',
+                    row.colour || '—',
+                    row.date || 'Invalid / Missing Date',
+                    row.valid ? 'Ready' : row.reason
+                ];
+                values.forEach((value, cellIndex) => {
+                    const td = document.createElement('td');
+                    td.className = 'p-3 whitespace-nowrap';
+                    td.textContent = value;
+                    if (cellIndex === 5) td.className += row.valid ? ' text-emerald-400' : ' text-amber-400';
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            });
+
+            document.getElementById('excelImportSummary').textContent =
+                `${validated.length} rows found · ${validCount} ready · ${skippedCount} will be skipped`;
+            document.getElementById('excelImportPreviewNote').textContent =
+                'All detected vehicle rows are shown above.';
+            document.getElementById('excelImportPreviewWrap').classList.remove('hidden');
+            document.getElementById('confirmExcelImportBtn').disabled = validCount === 0;
+            document.getElementById('confirmExcelImportBtn').innerHTML =
+                `<i class="fa-solid fa-cloud-arrow-up mr-1"></i> Import ${validCount} Vehicle${validCount === 1 ? '' : 's'}`;
+        }
+
+        function createExcelImportBatchMarker(rows) {
+            const source = rows.map(row => `${row.engine.toUpperCase()}|${row.frame.toUpperCase()}`).sort().join(';');
+            let hash = 2166136261;
+            for (let i = 0; i < source.length; i++) {
+                hash ^= source.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            return `EXCEL_UPLOAD_${(hash >>> 0).toString(16).toUpperCase()}`;
+        }
+
+        async function confirmExcelImport() {
+            if (!isFirebaseInitialized || !db) {
+                showExcelImportMessage('Firebase is not connected. No records have been imported.', true);
+                return;
+            }
+            if (!pendingExcelImportRows.length) {
+                showExcelImportMessage('Please select a valid Excel workbook first.', true);
+                return;
+            }
+
+            const validated = getExcelImportValidation(pendingExcelImportRows);
+            const readyRows = validated.filter(row => row.valid);
+            const skippedCount = validated.length - readyRows.length;
+            if (!readyRows.length) {
+                showExcelImportMessage('No new vehicles are ready to import. All rows are duplicates or have missing values.', true);
+                return;
+            }
+
+            // Do not block an entire workbook based on its historical batch marker.
+            // Inventory-based duplicate validation above is authoritative, so a workbook
+            // can be imported again after its vehicles have been deleted from inventory.
+            const batchMarker = createExcelImportBatchMarker(readyRows);
+            state.importedBatches = Array.isArray(state.importedBatches) ? state.importedBatches : [];
+
+            const originalInventory = state.inventory.slice();
+            const originalModels = state.modelsList.slice();
+            const originalColours = state.coloursList.slice();
+            const originalBatches = state.importedBatches.slice();
+            const importTimestamp = Date.now();
+
+            readyRows.forEach((row, index) => {
+                state.inventory.push({
+                    id: `EXCEL-${importTimestamp}-${index + 1}-${row.frame}`,
+                    name: '',
+                    model: row.model,
+                    engine: row.engine,
+                    frame: row.frame,
+                    date: row.date,
+                    colour: row.colour,
+                    remarks: `Imported from ${pendingExcelImportFileName}`,
+                    isSold: false,
+                    soldData: null,
+                    timestamp: importTimestamp
+                });
+
+                if (!state.modelsList.includes(row.model)) state.modelsList.push(row.model);
+                if (!state.coloursList.includes(row.colour)) state.coloursList.push(row.colour);
+            });
+
+            if (!state.importedBatches.includes(batchMarker)) state.importedBatches.push(batchMarker);
+            const saveButton = document.getElementById('confirmExcelImportBtn');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving to Firebase...';
+
+            const saved = await saveData();
+            if (!saved) {
+                state.inventory = originalInventory;
+                state.modelsList = originalModels;
+                state.coloursList = originalColours;
+                state.importedBatches = originalBatches;
+                populateDropdowns();
+                saveButton.disabled = false;
+                renderExcelImportPreview();
+                showExcelImportMessage('The cloud save failed. Your inventory was restored in this session; please check Firebase and try again.', true);
+                return;
+            }
+
+            populateDropdowns();
+            updateDashboardBadges();
+            renderAvailableStock();
+            closeExcelImportModal();
+            showNotification(
+                'Excel Import Complete',
+                `${readyRows.length} vehicles imported successfully with their Date of Entry from Excel. ${skippedCount} duplicate or incomplete rows skipped.`,
+                'success'
+            );
+        }
 
         // Initialize Firebase and load cloud data on startup
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1492,6 +1953,7 @@
 
                     // Fetch initial data from Firestore
                     await loadDataFromCloud();
+                    await importOpeningStockFromExcel();
 
                     // Real-time listener: instantly syncs across all devices
                     onSnapshot(doc(db, "inventory_db", "main_doc"), (docSnap) => {
@@ -1502,6 +1964,7 @@
                             if (cloudData.securityQuestions) state.securityQuestions = cloudData.securityQuestions;
                             if (cloudData.modelsList) state.modelsList = cloudData.modelsList;
                             if (cloudData.coloursList) state.coloursList = cloudData.coloursList;
+                            if (cloudData.importedBatches) state.importedBatches = cloudData.importedBatches;
                             
                             // Check if current logged-in user still exists in updated user accounts list
                             if (state.currentUser) {
@@ -1538,6 +2001,7 @@
                     if (data.securityQuestions) state.securityQuestions = data.securityQuestions;
                     if (data.modelsList) state.modelsList = data.modelsList;
                     if (data.coloursList) state.coloursList = data.coloursList;
+                    if (data.importedBatches) state.importedBatches = data.importedBatches;
                     populateDropdowns();
                 } else {
                     await saveData();
@@ -1766,12 +2230,16 @@
                         securityQuestions: state.securityQuestions,
                         modelsList: state.modelsList,
                         coloursList: state.coloursList,
+                        importedBatches: state.importedBatches || [],
                         lastUpdated: Date.now()
                     });
+                    return true;
                 } catch (e) {
                     console.error("Error saving data to Firebase:", e);
+                    return false;
                 }
             }
+            return false;
         }
 
         function showNotification(title, message, type = 'info') {
