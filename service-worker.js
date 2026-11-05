@@ -1,5 +1,5 @@
 const CACHE_NAME = "viswasai-hero-v1";
-const APP_SCOPE = "/Snehith/";
+const APP_SCOPE = "./";
 
 const APP_FILES = [
   APP_SCOPE,
